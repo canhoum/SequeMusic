@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SequeMusic", "SequeMusic.csproj", "{B0BE50B1-A6C9-401C-99B4-E04E46DFF4CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0BE50B1-A6C9-401C-99B4-E04E46DFF4CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0BE50B1-A6C9-401C-99B4-E04E46DFF4CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0BE50B1-A6C9-401C-99B4-E04E46DFF4CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0BE50B1-A6C9-401C-99B4-E04E46DFF4CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
