@@ -3,17 +3,32 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SequeMusic.Models;
 
+
 public class Musica
 {
-    /// <summary>
-    /// Chave Primária (PK)
-    /// </summary>
     [Key]
-    public int MusicaId { get; set; }
-    [StringLength(50)]
-    [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
-    public string Nome { get; set; }
-    /// <summary>
-    /// número de telemóvel do Utilizador
-    /// </summary>
+    public int ID { get; set; }
+
+    [Required]
+    public string Titulo { get; set; }
+
+    public string Album { get; set; }
+
+    [Display(Name = "Ano de Lançamento")]
+    public int AnoDeLancamento { get; set; }
+
+    // Relação N:1 com Artista
+    public int ArtistaId { get; set; }
+    public virtual Artista Artista { get; set; }
+
+    // Relação N:1 com Genero
+    public int GeneroId { get; set; }
+    public virtual Genero Genero { get; set; }
+
+    // Relação 1:N com Avaliacao
+    public virtual ICollection<Avaliacao> Avaliacoes { get; set; }
+
+    // Relação 1:N com Streaming
+    public virtual ICollection<Streaming> Streamings { get; set; }
+
 }
