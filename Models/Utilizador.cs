@@ -21,22 +21,6 @@ namespace SequeMusic.Models
         [Display(Name = "Data de Nascimento")]
         public DateOnly DataNascimento { get; set; }
 
-        [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
-        [Display(Name = "Morada")]
-        public string Morada { get; set; }
-
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
-        [Display(Name = "Código Postal")]
-        public string CodigoPostal { get; set; }
-
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
-        [Display(Name = "Cidade")]
-        public string Cidade { get; set; }
-
-        [Required(ErrorMessage = "O {0} é de preenchimento obrigatório.")]
-        [Display(Name = "País")]
-        public string Pais { get; set; }
-
         public bool IsAdmin { get; set; } = false;
 
         [NotMapped]
