@@ -5,7 +5,7 @@ using SequeMusic.Models;
 
 namespace SequeMusic.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<Utilizador>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
