@@ -19,7 +19,7 @@ namespace SequeMusic.Models
 
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Data de Nascimento")]
-        public DateOnly DataNascimento { get; set; }
+        public DateTime DataNascimento { get; set; }
 
         public bool IsAdmin { get; set; } = false;
 

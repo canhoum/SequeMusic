@@ -16,7 +16,7 @@ namespace SequeMusic.ViewModels
         public string Password { get; set; }
 
         [Required]
-        public DateOnly DataNascimento { get; set; }
+        public DateTime DataNascimento { get; set; }
 
         public string? Telemovel { get; set; }
     }

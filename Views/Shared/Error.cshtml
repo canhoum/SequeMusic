@@ -23,3 +23,12 @@
     For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
     and restarting the app.
 </p>
+
+
+@{
+    ViewData["Title"] = "Erro";
+}
+
+<h1>Ocorreu um erro!</h1>
+<p>Pedimos desculpa pelo incómodo. Tente novamente mais tarde.</p>
+<a asp-action="Index" asp-controller="Home" class="btn btn-primary">Voltar para a página inicial</a>
