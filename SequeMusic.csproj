@@ -21,4 +21,10 @@
       <Folder Include="migrations\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="SequeMusic\obj\project.assets.json" />
+      <_ContentIncludedByDefault Remove="SequeMusic\obj\project.packagespec.json" />
+      <_ContentIncludedByDefault Remove="SequeMusic\obj\SequeMusic.csproj.nuget.dgspec.json" />
+    </ItemGroup>
+
 </Project>

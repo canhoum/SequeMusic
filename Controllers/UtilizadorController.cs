@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace SequeMusic.Controllers
 {
-    [Authorize] // <- Adicionar aqui
+    [Authorize]
     public class UtilizadorsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -33,11 +33,10 @@ namespace SequeMusic.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(Utilizador model)
+        public async Task<IActionResult> Login(LoginRequest model)
+
         {
-            ModelState.Remove("Nome");
-            ModelState.Remove("Telemovel");
-            ModelState.Remove("DataNascimento");
+    
             if (ModelState.IsValid)
             {
                 try
@@ -76,7 +75,7 @@ namespace SequeMusic.Controllers
                 }
                 catch
                 {
-                    return RedirectToAction("Error", "Home"); // Se quiseres tratar falhas gerais
+                    return RedirectToAction("Error", "Home");
                 }
             }
             return View(model);
@@ -105,12 +104,11 @@ namespace SequeMusic.Controllers
                     Telemovel = model.Telemovel,
                     EmailConfirmed = true
                 };
-
+             
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    // Aqui é onde adicionas o código
                     var createdUser = await _userManager.FindByEmailAsync(model.Email);
                     Console.WriteLine($"UTILIZADOR CRIADO: {createdUser.Id} - {createdUser.Email}");
 
@@ -128,10 +126,9 @@ namespace SequeMusic.Controllers
             return View(model);
         }
 
-
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users.ToListAsync();
+            var users = await _userManager.Users.ToListAsync();
             return View(users);
         }
 
@@ -141,6 +138,137 @@ namespace SequeMusic.Controllers
             await _signInManager.SignOutAsync();
             Response.Cookies.Delete("UserAuthCookie");
             return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Utilizadors/Details/5
+        public async Task<IActionResult> Details(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var utilizador = await _userManager.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+
+            return View(utilizador);
+        }
+
+        // GET: Utilizadors/Edit/5
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+            return View(utilizador);
+        }
+
+        // POST: Utilizadors/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,Email,Telemovel,DataNascimento")] Utilizador utilizador)
+        {
+            if (id != utilizador.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userToUpdate = await _userManager.FindByIdAsync(id);
+                    if (userToUpdate == null)
+                    {
+                        return NotFound();
+                    }
+
+                    userToUpdate.Nome = utilizador.Nome;
+                    userToUpdate.Email = utilizador.Email;
+                    userToUpdate.UserName = utilizador.Email;
+                    userToUpdate.Telemovel = utilizador.Telemovel;
+                    userToUpdate.DataNascimento = utilizador.DataNascimento;
+
+                    var result = await _userManager.UpdateAsync(userToUpdate);
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                        return View(utilizador);
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await UtilizadorExists(utilizador.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(utilizador);
+        }
+
+        // GET: Utilizadors/Delete/5
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var utilizador = await _userManager.Users
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (utilizador == null)
+            {
+                return NotFound();
+            }
+
+            return View(utilizador);
+        }
+
+        // POST: Utilizadors/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            var utilizador = await _userManager.FindByIdAsync(id);
+            if (utilizador != null)
+            {
+                var result = await _userManager.DeleteAsync(utilizador);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(utilizador);
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<bool> UtilizadorExists(string id)
+        {
+            return await _userManager.Users.AnyAsync(e => e.Id == id);
         }
     }
 }
