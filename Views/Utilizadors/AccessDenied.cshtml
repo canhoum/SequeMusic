@@ -1,0 +1,13 @@
+@model SequeMusic.Models.Utilizador
+@{
+    ViewData["Title"] = "Acesso Negado";
+}
+
+<div class="container mt-5">
+    
+    <div class="alert alert-danger text-center">
+        <h2 class="mb-3">Acesso negado</h2>
+        <p>Não tem permissões para aceder a esta página.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">Voltar à página inicial</a>
+    </div>
+</div>

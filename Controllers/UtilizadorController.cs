@@ -128,6 +128,13 @@ namespace SequeMusic.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.IsAdmin)
+            {
+                return View("~/Views/Utilizadors/AccessDenied.cshtml");
+            }
+
             var users = await _userManager.Users.ToListAsync();
             return View(users);
         }
