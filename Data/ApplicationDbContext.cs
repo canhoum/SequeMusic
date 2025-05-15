@@ -17,7 +17,8 @@ namespace SequeMusic.Data
         public DbSet<Avaliacao> Avaliacoes { get; set; }
         public DbSet<Streaming> Streamings { get; set; }
         public DbSet<Noticia> Noticias { get; set; }
-        public DbSet<Utilizador> Utilizadores { get; set; }
+        public DbSet<Utilizador> Utilizadors { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

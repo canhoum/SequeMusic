@@ -1,0 +1,31 @@
+@model SequeMusic.Models.Utilizador
+
+@{
+    ViewData["Title"] = "Detalhes do Utilizador";
+}
+
+<h2>Detalhes do Utilizador</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Nome</dt>
+        <dd class="col-sm-10">@Model.Nome</dd>
+
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-10">@Model.Email</dd>
+
+        <dt class="col-sm-2">Telemóvel</dt>
+        <dd class="col-sm-10">@Model.Telemovel</dd>
+
+        <dt class="col-sm-2">Data de Nascimento</dt>
+        <dd class="col-sm-10">@Model.DataNascFormatted</dd>
+
+        @if (Model.IsAdmin)
+        {
+            <dt class="col-sm-2">Administrador</dt>
+            <dd class="col-sm-10">Sim</dd>
+        }
+    </dl>
+</div>
+
+<a asp-action="Index" class="btn btn-primary">Voltar à Lista</a>

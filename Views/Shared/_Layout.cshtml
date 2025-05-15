@@ -11,37 +11,70 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic border-bottom box-shadow mb-3 position-relative">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SequeMusic</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+
+            <!-- Barra de pesquisa -->
+            <form class="d-flex me-3">
+                <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
+                <button class="btn btn-outline-light" type="submit">🔍</button>
+            </form>
+
+            <!-- Marca centrada -->
+            <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white" asp-area="" asp-controller="Home" asp-action="Index">SequeMusic</a>
+
+            <!-- Botão mobile -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav align-items-center">
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <!-- Se o user está logado -->
+                        <li class="nav-item me-2">
+                            <a class="btn btn-light mt-2 px-3 py-2"
+                               asp-controller="Utilizadors"
+                               asp-action="Details"
+                               asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value">Perfil</a>
+                        </li>
+                        <li class="nav-item">
+                            <form asp-controller="Utilizadors" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-danger mt-2 px-3 py-2">Logout</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <!-- Se o user não está logado -->
+                        <li class="nav-item me-2">
+                            <a class="btn btn-light mt-2 px-3 py-2" asp-controller="Utilizadors" asp-action="Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-success mt-2 px-3 py-2" asp-controller="Utilizadors" asp-action="Register">Começar Agora</a>
+                        </li>
+                    }
+
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+
+
+
+
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2025 - SequeMusic - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-    </div>
-</footer>
+
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
