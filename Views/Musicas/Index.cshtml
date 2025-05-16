@@ -1,0 +1,40 @@
+@model IEnumerable<SequeMusic.Models.Musica>
+
+@{
+    ViewData["Title"] = "Lista de Músicas";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Adicionar Nova Música</a>
+</p>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>Título</th>
+        <th>Álbum</th>
+        <th>Ano</th>
+        <th>Artista</th>
+        <th>Gênero</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            <td>@item.Titulo</td>
+            <td>@item.Album</td>
+            <td>@item.AnoDeLancamento</td>
+            <td>@item.Artista?.Nome_Artista</td>
+            <td>@item.Genero?.Nome</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a> |
+                <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Apagar</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
