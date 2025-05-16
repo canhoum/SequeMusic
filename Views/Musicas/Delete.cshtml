@@ -1,0 +1,21 @@
+@model SequeMusic.Models.Musica
+
+@{
+    ViewData["Title"] = "Apagar Música";
+}
+
+<h2>Tem a certeza que pretende apagar esta música?</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Título</dt>
+    <dd class="col-sm-10">@Model.Titulo</dd>
+
+    <dt class="col-sm-2">Artista</dt>
+    <dd class="col-sm-10">@Model.Artista?.Nome_Artista</dd>
+</dl>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="ID" />
+    <input type="submit" value="Apagar" class="btn btn-danger" /> |
+    <a asp-action="Index">Cancelar</a>
+</form>

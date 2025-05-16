@@ -16,6 +16,13 @@ public class Musica
 
     [Display(Name = "Ano de Lançamento")]
     public int AnoDeLancamento { get; set; }
+    
+    [Required]
+    public string LinkAudio { get; set; }
+    
+    [Required]
+    public string NomeFicheiroAudio { get; set; }
+    
 
     // Relação N:1 com Artista
     public int ArtistaId { get; set; }

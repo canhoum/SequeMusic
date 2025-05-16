@@ -1,0 +1,38 @@
+@model SequeMusic.Models.Musica
+
+@{
+    ViewData["Title"] = "Editar Música";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Edit" enctype="multipart/form-data">
+    <input type="hidden" asp-for="ID" />
+    <div class="form-group">
+        <label asp-for="Titulo" class="control-label"></label>
+        <input asp-for="Titulo" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Album" class="control-label"></label>
+        <input asp-for="Album" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="AnoDeLancamento" class="control-label"></label>
+        <input asp-for="AnoDeLancamento" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="ArtistaId" class="control-label"></label>
+        <select asp-for="ArtistaId" class="form-control" asp-items="ViewBag.ArtistaId"></select>
+    </div>
+    <div class="form-group">
+        <label asp-for="GeneroId" class="control-label"></label>
+        <select asp-for="GeneroId" class="form-control" asp-items="ViewBag.GeneroId"></select>
+    </div>
+    <div class="form-group">
+        <label>Substituir ficheiro de áudio (.mp3)</label>
+        <input type="file" name="ficheiroAudio" class="form-control" accept=".mp3" />
+    </div>
+    <div class="form-group">
+        <input type="submit" value="Guardar" class="btn btn-primary" />
+    </div>
+</form>
