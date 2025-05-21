@@ -18,7 +18,15 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Musicas
+        private void PopularDropDowns(object artistaSelecionado = null, object generoSelecionado = null)
+        {
+            var artistas = _context.Artistas.ToList() ?? new List<Artista>();
+            var generos = _context.Generos.ToList() ?? new List<Genero>();
+
+            ViewBag.ArtistaId = new SelectList(artistas, "ID", "Nome", artistaSelecionado);
+            ViewBag.GeneroId = new SelectList(generos, "ID", "Nome", generoSelecionado);
+        }
+
         public async Task<IActionResult> Index()
         {
             var musicas = _context.Musicas
@@ -27,7 +35,6 @@ namespace SequeMusic.Controllers
             return View(await musicas.ToListAsync());
         }
 
-        // GET: Musicas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -44,16 +51,13 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Create
         [Authorize]
         public IActionResult Create()
         {
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome");
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome");
+            PopularDropDowns();
             return View();
         }
 
-        // POST: Musicas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -67,6 +71,7 @@ namespace SequeMusic.Controllers
                     if (extensao.ToLower() != ".mp3")
                     {
                         ModelState.AddModelError("NomeFicheiroAudio", "Apenas ficheiros .mp3 são permitidos.");
+                        PopularDropDowns(musica.ArtistaId, musica.GeneroId);
                         return View(musica);
                     }
 
@@ -86,12 +91,10 @@ namespace SequeMusic.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            PopularDropDowns(musica.ArtistaId, musica.GeneroId);
             return View(musica);
         }
 
-        // GET: Musicas/Edit/5
         [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -100,12 +103,10 @@ namespace SequeMusic.Controllers
             var musica = await _context.Musicas.FindAsync(id);
             if (musica == null) return NotFound();
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            PopularDropDowns(musica.ArtistaId, musica.GeneroId);
             return View(musica);
         }
 
-        // POST: Musicas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -123,6 +124,7 @@ namespace SequeMusic.Controllers
                         if (extensao.ToLower() != ".mp3")
                         {
                             ModelState.AddModelError("NomeFicheiroAudio", "Apenas ficheiros .mp3 são permitidos.");
+                            PopularDropDowns(musica.ArtistaId, musica.GeneroId);
                             return View(musica);
                         }
 
@@ -148,12 +150,10 @@ namespace SequeMusic.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            PopularDropDowns(musica.ArtistaId, musica.GeneroId);
             return View(musica);
         }
 
-        // GET: Musicas/Delete/5
         [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -167,15 +167,17 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // POST: Musicas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var musica = await _context.Musicas.FindAsync(id);
-            _context.Musicas.Remove(musica);
-            await _context.SaveChangesAsync();
+            if (musica != null)
+            {
+                _context.Musicas.Remove(musica);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
     }

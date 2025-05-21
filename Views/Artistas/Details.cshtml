@@ -12,7 +12,13 @@
 
         <div class="col-md-9">
             <h4 class="mb-3">Sobre</h4>
-            <p><strong>Biografia:</strong> @Model.Biografia</p>
+            <div>
+                <h5>Biografia:</h5>
+                <div id="biografia-container" class="biografia-limitada">
+                    @Model.Biografia
+                </div>
+                <button id="toggle-biografia" class="btn btn-link p-0">Mostrar mais</button>
+            </div>
             <p><strong>País de Origem:</strong> @Model.Pais_Origem</p>
 
             <hr />
@@ -66,3 +72,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    const toggleBtn = document.getElementById("toggle-biografia");
+    const biografia = document.getElementById("biografia-container");
+
+    toggleBtn.addEventListener("click", function () {
+        biografia.classList.toggle("biografia-expandida");
+
+        if (biografia.classList.contains("biografia-expandida")) {
+            toggleBtn.textContent = "Mostrar menos";
+        } else {
+            toggleBtn.textContent = "Mostrar mais";
+        }
+    });
+</script>
+

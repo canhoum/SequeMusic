@@ -33,3 +33,16 @@ body {
 .bg-sequemusic {
   background-color: #1DB954 ;
 }
+
+.biografia-limitada {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  transition: all 0.3s ease;
+}
+
+.biografia-expandida {
+  -webkit-line-clamp: unset;
+}
+
