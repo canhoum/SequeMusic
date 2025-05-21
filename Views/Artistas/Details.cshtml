@@ -1,0 +1,68 @@
+@model SequeMusic.Models.Artista
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-3 text-center">
+            @if (!string.IsNullOrEmpty(Model.Foto))
+            {
+                <img src="~/uploads/@Model.Foto" alt="Foto de @Model.Nome_Artista" class="img-fluid rounded-circle border border-dark mb-3" style="width: 200px; height: 200px; object-fit: cover;" />
+            }
+            <h3 class="fw-bold">@Model.Nome_Artista</h3>
+        </div>
+
+        <div class="col-md-9">
+            <h4 class="mb-3">Sobre</h4>
+            <p><strong>Biografia:</strong> @Model.Biografia</p>
+            <p><strong>País de Origem:</strong> @Model.Pais_Origem</p>
+
+            <hr />
+
+            <h4 class="mb-3">Músicas Populares</h4>
+            @if (Model.Musicas != null && Model.Musicas.Any())
+            {
+                <div class="row">
+                    @foreach (var musica in Model.Musicas)
+                    {
+                        <div class="col-md-6 mb-2">
+                            <div class="card shadow-sm">
+                                <div class="card-body p-2">
+                                    <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="text-decoration-none">
+                                        <strong>@musica.Titulo</strong>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Sem músicas para mostrar.</p>
+            }
+
+            <hr />
+
+            <h4 class="mb-3">Notícias</h4>
+            @if (Model.Noticias != null && Model.Noticias.Any())
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var noticia in Model.Noticias)
+                    {
+                        <li class="list-group-item">
+                            <a asp-controller="Noticias" asp-action="Details" asp-route-id="@noticia.Id">@noticia.Titulo</a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Sem notícias para mostrar.</p>
+            }
+
+            <div class="mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Editar</a>
+                <a asp-action="Index" class="btn btn-secondary">Voltar à lista</a>
+            </div>
+        </div>
+    </div>
+</div>
