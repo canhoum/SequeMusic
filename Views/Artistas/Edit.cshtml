@@ -1,0 +1,27 @@
+@model SequeMusic.Models.Artista
+
+<h2>Editar Artista</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div class="form-group">
+        <label asp-for="Nome_Artista"></label>
+        <input asp-for="Nome_Artista" class="form-control" />
+        <span asp-validation-for="Nome_Artista" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Biografia"></label>
+        <textarea asp-for="Biografia" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="Pais_Origem"></label>
+        <input asp-for="Pais_Origem" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Substituir Foto (jpg, png, gif)</label>
+        <input type="file" name="fotoUpload" accept=".jpg,.jpeg,.png,.gif" class="form-control" />
+        <span asp-validation-for="Foto" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
