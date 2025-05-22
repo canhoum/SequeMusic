@@ -1,0 +1,23 @@
+@model SequeMusic.Models.Genero
+
+@{
+    ViewData["Title"] = "Eliminar Gênero";
+}
+
+<h1>Eliminar Gênero</h1>
+
+<h3>Tem a certeza que deseja eliminar este gênero?</h3>
+<div>
+    <h4>@Model.Nome</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Descrição</dt>
+        <dd class="col-sm-10">@Model.Descricao</dd>
+    </dl>
+
+    <form asp-action="DeleteConfirmed">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>

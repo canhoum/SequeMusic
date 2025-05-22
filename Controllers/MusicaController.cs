@@ -66,7 +66,8 @@ namespace SequeMusic.Controllers
                     var extensao = Path.GetExtension(ficheiroAudio.FileName);
                     if (extensao.ToLower() != ".mp3")
                     {
-                        ModelState.AddModelError("NomeFicheiroAudio", "Apenas ficheiros .mp3 são permitidos.");
+                        ModelState.AddModelError(string.Empty, "Apenas ficheiros .mp3 são permitidos.");
+
                         return View(musica);
                     }
 
