@@ -48,8 +48,8 @@ namespace SequeMusic.Controllers
         [Authorize]
         public IActionResult Create()
         {
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome");
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome");
+            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome");
             return View();
         }
 
@@ -66,7 +66,8 @@ namespace SequeMusic.Controllers
                     var extensao = Path.GetExtension(ficheiroAudio.FileName);
                     if (extensao.ToLower() != ".mp3")
                     {
-                        ModelState.AddModelError("NomeFicheiroAudio", "Apenas ficheiros .mp3 são permitidos.");
+                        ModelState.AddModelError(string.Empty, "Apenas ficheiros .mp3 são permitidos.");
+
                         return View(musica);
                     }
 
@@ -86,8 +87,8 @@ namespace SequeMusic.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
             return View(musica);
         }
 
@@ -100,8 +101,8 @@ namespace SequeMusic.Controllers
             var musica = await _context.Musicas.FindAsync(id);
             if (musica == null) return NotFound();
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
             return View(musica);
         }
 
@@ -148,8 +149,8 @@ namespace SequeMusic.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "ID", "Nome", musica.ArtistaId);
-            ViewData["GeneroId"] = new SelectList(_context.Generos, "ID", "Nome", musica.GeneroId);
+            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
+            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
             return View(musica);
         }
 

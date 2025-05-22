@@ -107,8 +107,7 @@ namespace SequeMusic.Controllers
              
                 var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Succeeded)
-                {
+                if (result.Succeeded) {
                     var createdUser = await _userManager.FindByEmailAsync(model.Email);
                     Console.WriteLine($"UTILIZADOR CRIADO: {createdUser.Id} - {createdUser.Email}");
 

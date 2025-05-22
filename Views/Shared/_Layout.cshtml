@@ -4,26 +4,55 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - SequeMusic</title>
-    <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/SequeMusic.styles.css" asp-append-version="true"/>
+
+    <style>
+        .nav-secondary {
+            background-color: #111;
+            font-weight: bold;
+        }
+
+        .nav-secondary .nav-link {
+            color: white;
+            text-transform: uppercase;
+            padding: 0.75rem 1rem;
+            position: relative;
+        }
+
+        .nav-secondary .nav-link::after {
+            content: "|";
+            color: gray;
+            position: absolute;
+            right: -0.5rem;
+        }
+
+        .nav-secondary .nav-item:last-child .nav-link::after {
+            content: "";
+        }
+
+        .nav-secondary .nav-link:hover {
+            color: #1ED760;
+        }
+    </style>
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic border-bottom box-shadow mb-3 position-relative">
-        <div class="container-fluid">
+    <!-- Navbar principal -->
+    <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
 
-            <!-- Barra de pesquisa -->
+    <div class="container-fluid">
             <form class="d-flex me-3">
                 <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
                 <button class="btn btn-outline-light" type="submit">🔍</button>
             </form>
 
-            <!-- Marca centrada -->
-            <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white" asp-area="" asp-controller="Home" asp-action="Index">SequeMusic</a>
+            <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white text-uppercase fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                SequeMusic
+            </a>
 
-            <!-- Botão mobile -->
+
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -31,10 +60,8 @@
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav align-items-center">
-
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <!-- Se o user está logado -->
                         <li class="nav-item me-2">
                             <a class="btn btn-light mt-2 px-3 py-2"
                                asp-controller="Utilizadors"
@@ -49,7 +76,6 @@
                     }
                     else
                     {
-                        <!-- Se o user não está logado -->
                         <li class="nav-item me-2">
                             <a class="btn btn-light mt-2 px-3 py-2" asp-controller="Utilizadors" asp-action="Login">Login</a>
                         </li>
@@ -57,23 +83,37 @@
                             <a class="btn btn-success mt-2 px-3 py-2" asp-controller="Utilizadors" asp-action="Register">Começar Agora</a>
                         </li>
                     }
-
                 </ul>
             </div>
         </div>
     </nav>
+
+    <!-- Navbar secundária estilizada -->
+    <nav class="nav-secondary">
+        <div class="container d-flex justify-content-center">
+            <ul class="navbar-nav flex-row">
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Artistas" asp-action="Index">Artistas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Musicas" asp-action="Index">Músicas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Generos" asp-action="Index">Gêneros</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Noticias" asp-action="Index">Notícias</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 </header>
-
-
-
 
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
-
-
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
