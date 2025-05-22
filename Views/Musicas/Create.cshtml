@@ -2,35 +2,54 @@
 
 
 
-<h2>@ViewData["Title"]</h2>
+<h1>@ViewData["Title"]</h1>
 
 <form asp-action="Create" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
     <div class="form-group">
         <label asp-for="Titulo" class="control-label"></label>
         <input asp-for="Titulo" class="form-control" />
         <span asp-validation-for="Titulo" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="Album" class="control-label"></label>
         <input asp-for="Album" class="form-control" />
     </div>
+
+    <div class="form-group">
+        <label asp-for="Letra" class="control-label"></label>
+        <textarea asp-for="Letra" class="form-control"></textarea>
+    </div>
+
     <div class="form-group">
         <label asp-for="AnoDeLancamento" class="control-label"></label>
         <input asp-for="AnoDeLancamento" class="form-control" />
     </div>
+
     <div class="form-group">
         <label asp-for="ArtistaId" class="control-label"></label>
-        <select asp-for="ArtistaId" class="form-control" asp-items="ViewBag.ArtistaId"></select>
+        <select asp-for="ArtistaId" asp-items="ViewBag.ArtistaId" class="form-control"></select>
+        <span asp-validation-for="ArtistaId" class="text-danger"></span>
     </div>
+
     <div class="form-group">
         <label asp-for="GeneroId" class="control-label"></label>
-        <select asp-for="GeneroId" class="form-control" asp-items="ViewBag.GeneroId"></select>
+        <select asp-for="GeneroId" asp-items="ViewBag.GeneroId" class="form-control"></select>
+        <span asp-validation-for="GeneroId" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label>Ficheiro de Áudio (.mp3)</label>
-        <input type="file" name="ficheiroAudio" class="form-control" accept=".mp3" />
+        <label for="ficheiroAudio">Ficheiro Áudio (.mp3)</label>
+        <input type="file" name="ficheiroAudio" class="form-control" />
+        <span asp-validation-for="NomeFicheiroAudio" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <input type="submit" value="Criar" class="btn btn-primary" />
-    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 </form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

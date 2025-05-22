@@ -10,19 +10,21 @@ public class Musica
     public int ID { get; set; }
 
     [Required]
-    public string Titulo { get; set; }
+    public string Titulo { get; set; } = "";
 
-    public string Album { get; set; }
+    public string Album { get; set; } = "";
+    
+    public string Letra { get; set; } = "";
 
     [Display(Name = "Ano de Lançamento")]
     public int AnoDeLancamento { get; set; }
     
     
     [Required]
-    public string LinkAudio { get; set; }
+    public string LinkAudio { get; set; } = "";
     
     [Required]
-    public string NomeFicheiroAudio { get; set; }
+    public string NomeFicheiroAudio { get; set; } = "";
     
 
     // Relação N:1 com Artista
