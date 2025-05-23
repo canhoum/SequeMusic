@@ -1,23 +1,52 @@
 @model SequeMusic.Models.Genero
 
 @{
-    ViewData["Title"] = "Eliminar Gênero";
+    ViewData["Title"] = "Eliminar Género";
 }
 
-<h1>Eliminar Gênero</h1>
+<style>
+    body {
+        background-color: #111827;
+    }
 
-<h3>Tem a certeza que deseja eliminar este gênero?</h3>
-<div>
-    <h4>@Model.Nome</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Descrição</dt>
-        <dd class="col-sm-10">@Model.Descricao</dd>
-    </dl>
+    .genero-delete-card {
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 50px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
 
-    <form asp-action="DeleteConfirmed">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">Eliminar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </form>
+    h1, h3 {
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+    dt {
+        font-weight: bold;
+        color: #1f2937;
+    }
+
+    dd {
+        color: #374151;
+    }
+</style>
+
+<div class="container d-flex justify-content-center">
+    <div class="col-md-8 genero-delete-card">
+        <h1 class="text-center mb-3">🗑️ Eliminar Género</h1>
+        <h3 class="text-center text-danger mb-4">Tem a certeza que deseja eliminar este género?</h3>
+
+        <div class="text-center mb-4">
+            <h4 class="fw-bold">@Model.Nome</h4>
+            <p class="fst-italic text-muted">@Model.Descricao</p>
+        </div>
+
+        <form asp-action="DeleteConfirmed" class="d-flex justify-content-between">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger px-4">❌ Eliminar</button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">← Cancelar</a>
+        </form>
+    </div>
 </div>
