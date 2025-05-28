@@ -1,33 +1,102 @@
 @model SequeMusic.Models.Noticia
 
 @{
-    ViewData["Title"] = "Detalhes da Notícia";
+    ViewData["Title"] = Model.Titulo;
 }
 
-<h2>@ViewData["Title"]</h2>
+<style>
+    body {
+        background-color: #f7f8fa;
+    }
 
-<div>
-    <h4>Notícia</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">Título</dt>
-        <dd class="col-sm-10">@Model.Titulo</dd>
+    .hero-wrapper {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 450px;
+        overflow: hidden;
+        border-bottom: 2px solid #dee2e6;
+    }
 
-        <dt class="col-sm-2">Conteúdo</dt>
-        <dd class="col-sm-10">@Model.Conteudo</dd>
+    .hero-wrapper img {
+        width: 100%;
+        height: auto;
+        max-height: 450px;
+        object-fit: contain; /* ✅ mostra a imagem completa sem cortar */
+        object-position: center top;
+        display: block;
+        margin: 0 auto;
+    }
 
-        <dt class="col-sm-2">Data de Publicação</dt>
-        <dd class="col-sm-10">@Model.Data_Publicacao.ToString("dd/MM/yyyy")</dd>
+    .noticia-container {
+        max-width: 850px;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 2rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.07);
+        border-radius: 0.75rem;
+        margin-top: 2rem;
+    }
 
-        <dt class="col-sm-2">Fonte</dt>
-        <dd class="col-sm-10">@Model.Fonte</dd>
+    .noticia-titulo {
+        font-size: 2.4rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
 
-        <dt class="col-sm-2">Artista</dt>
-        <dd class="col-sm-10">@Model.Artista?.Nome_Artista</dd>
-    </dl>
-</div>
+    .noticia-meta {
+        font-size: 0.95rem;
+        color: #6c757d;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
 
-<div class="mt-3">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
-    <a asp-action="Index" class="btn btn-secondary">Voltar</a>
+    .noticia-content {
+        font-size: 1.1rem;
+        line-height: 1.75;
+        color: #212529;
+        white-space: pre-line;
+    }
+
+    .noticia-content p {
+        margin-bottom: 1.4rem;
+    }
+
+    .btn-back {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+</style>
+
+@if (!string.IsNullOrEmpty(Model.Artista?.Foto))
+{
+    <div class="hero-wrapper">
+        <img src="/uploads/@Model.Artista.Foto" alt="Imagem da Notícia" />
+    </div>
+}
+
+<div class="container py-5">
+    <div class="noticia-container">
+
+        <h1 class="noticia-titulo">@Model.Titulo</h1>
+
+        <div class="noticia-meta">
+            Publicado em @Model.Data_Publicacao.ToString("dd MMM yyyy") —
+            <strong>@Model.Artista?.Nome_Artista</strong><br />
+            <small>Fonte: <em>@Model.Fonte</em></small>
+        </div>
+
+        <div class="noticia-content">
+            <p>@Model.Conteudo</p>
+        </div>
+
+        <div class="btn-back">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                ← Voltar ao Início
+            </a>
+        </div>
+
+    </div>
 </div>
