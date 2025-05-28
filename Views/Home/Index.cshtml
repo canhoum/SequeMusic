@@ -1,10 +1,43 @@
-﻿@{
-    ViewData["Title"] = "Página Inicial";
-}
+﻿<div class="container py-4">
 
-<div class="text-center">
-    <h1 class="display-4">Bem-vindo à SequeMusic!</h1>
-    <p>A tua plataforma para descobrir, ouvir e partilhar música.</p>
+    <div class="text-center mb-5">
+        <h1 class="display-4">Bem-vindo à SequeMusic!</h1>
+        <p class="lead">A tua plataforma para descobrir, ouvir e partilhar música.</p>
+    </div>
 
-    
+    <!-- Notícias Recentes -->
+    <section class="mb-5">
+        <h2>📰 Notícias Recentes</h2>
+        <div class="row">
+            @foreach (var noticia in ViewBag.Noticias)
+            {
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@noticia.Titulo</h5>
+                            <p class="card-text">@noticia.Resumo</p>
+                            <a href="/Noticia/Details/@noticia.Id" class="btn btn-sm btn-outline-primary">Ler mais</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Top 10 Músicas da Semana -->
+    <section>
+        <h2>🎵 Top 10 Músicas da Semana</h2>
+        <ol class="list-group list-group-numbered">
+            @foreach (var musica in ViewBag.TopMusicas)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>@musica.Titulo</strong> - @musica.Artista.Nome_Artista
+                    </div>
+                    <a href="/Musica/Details/@musica.ID" class="btn btn-sm btn-outline-secondary">Ver</a>
+                </li>
+            }
+        </ol>
+    </section>
+
 </div>

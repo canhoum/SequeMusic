@@ -9,7 +9,7 @@ namespace SequeMusic.Models
     {
         public int Id { get; set; }
 
-        [Required] public string Nome_Artista { get; set; } = "";
+        [Required] public string Nome_Artista { get; set; }
 
         public string Biografia { get; set; } = ""; 
 

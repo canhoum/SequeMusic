@@ -53,6 +53,7 @@ namespace SequeMusic.Controllers
         [Authorize]
         public async Task<IActionResult> Create([Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
         {
+            ModelState.Remove("Artista");
             if (ModelState.IsValid)
             {
                 _context.Add(noticia);

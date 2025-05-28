@@ -120,7 +120,7 @@
         const pais = "@Model.Pais_Origem".trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const mapa = {
             portugal: "pt", brasil: "br", franca: "fr", espanha: "es", alemanha: "de",
-            italia: "it", canada: "ca", chile: "cl", india: "in", argentina: "ar", "cabo verde": "cv"
+            italia: "it", canada: "ca", chile: "cl", india: "in", argentina: "ar", "cabo verde": "cv", "estados unidos": "us"
         };
         const bandeira = document.getElementById("bandeira-pais");
         if (mapa[pais]) {
