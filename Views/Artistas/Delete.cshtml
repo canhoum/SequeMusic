@@ -1,16 +1,28 @@
 @model SequeMusic.Models.Artista
 
-<h2>Eliminar Artista</h2>
+@{
+    ViewData["Title"] = "Eliminar Artista";
+}
 
-<h3>Tem a certeza que deseja eliminar este artista?</h3>
+<div class="container py-4">
+    <div class="alert alert-danger border border-danger shadow-sm">
+        <h4 class="alert-heading">⚠️ Atenção!</h4>
+        <p class="mb-2">Está prestes a eliminar o artista <strong>@Model.Nome_Artista</strong>.</p>
+        <p>Esta ação é <strong>irreversível</strong> e poderá afetar as músicas e notícias associadas.</p>
+    </div>
 
-<div>
-    <h4>@Model.Nome_Artista</h4>
-    <p>@Model.Biografia</p>
+    <div class="mb-4">
+        <h5 class="fw-semibold">Biografia</h5>
+        <p class="fst-italic">@Model.Biografia</p>
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post" class="d-flex flex-wrap gap-3">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">
+            🗑️ Eliminar Artista
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Cancelar
+        </a>
+    </form>
 </div>
-
-<form asp-action="DeleteConfirmed" method="post">
-    <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-</form>

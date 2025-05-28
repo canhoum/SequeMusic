@@ -59,6 +59,8 @@ namespace SequeMusic.Controllers
         [Authorize]
         public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
         {
+            ModelState.Remove("Genero");
+            ModelState.Remove("Artista");
             if (ModelState.IsValid)
             {
                 if (ficheiroAudio != null && ficheiroAudio.Length > 0)

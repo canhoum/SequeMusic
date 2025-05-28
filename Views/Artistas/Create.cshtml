@@ -4,47 +4,86 @@
     ViewData["Title"] = "Adicionar Novo Artista";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
-<h4>Artista</h4>
-<hr />
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form asp-action="Create" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-            <div class="form-group">
-                <label asp-for="Nome_Artista" class="control-label"></label>
-                <input asp-for="Nome_Artista" class="form-control" />
-                <span asp-validation-for="Nome_Artista" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Biografia" class="control-label"></label>
-                <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
-                <span asp-validation-for="Biografia" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Pais_Origem" class="control-label"></label>
-                <input asp-for="Pais_Origem" class="form-control" />
-                <span asp-validation-for="Pais_Origem" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label">Foto do Artista</label>
-                <input name="fotoUpload" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif" required />
-                <span asp-validation-for="Foto" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-3">
-                <input type="submit" value="Guardar" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary ml-2">Cancelar</a>
-            </div>
-        </form>
+    <div class="mb-3">
+        <label asp-for="Nome_Artista" class="form-label fw-semibold"></label>
+        <input asp-for="Nome_Artista" class="form-control" />
+        <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
     </div>
-</div>
+
+    <div class="mb-3">
+        <label asp-for="Biografia" class="form-label fw-semibold"></label>
+        <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Biografia" class="text-danger small"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Pais_Origem" class="form-label fw-semibold"></label>
+        <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
+        <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
+
+        <!-- Bandeira dinâmica -->
+        <div class="mt-2" id="bandeira-container" style="display: none;">
+            <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label fw-semibold">Foto do Artista</label>
+        <input name="fotoUpload" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif" required />
+        <span asp-validation-for="Foto" class="text-danger small"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">💾 Guardar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        const inputPais = document.getElementById("input-pais");
+        const bandeiraContainer = document.getElementById("bandeira-container");
+        const bandeiraImg = document.getElementById("bandeira-img");
+
+        const mapaPaises = {
+            portugal: "pt",
+            brasil: "br",
+            franca: "fr",
+            espanha: "es",
+            alemanha: "de",
+            italia: "it",
+            angola: "ao",
+            mocambique: "mz",
+            "cabo verde": "cv",
+            argentina: "ar",
+            canada: "ca",
+            chile: "cl",
+            japao: "jp",
+            china: "cn",
+            india: "in",
+            mexico: "mx",
+            suecia: "se",
+            "estados unidos": "us",
+            // Podes continuar a expandir
+        };
+
+        inputPais.addEventListener("input", function () {
+            const nome = inputPais.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const codigo = mapaPaises[nome];
+            if (codigo) {
+                bandeiraImg.src = `https://flagcdn.com/w40/${codigo}.png`;
+                bandeiraImg.alt = `Bandeira de ${nome}`;
+                bandeiraContainer.style.display = "block";
+            } else {
+                bandeiraContainer.style.display = "none";
+            }
+        });
+    </script>
 }

@@ -1,0 +1,35 @@
+@model SequeMusic.Models.Noticia
+
+@{
+    ViewData["Title"] = "Eliminar Notícia";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h4>Tem a certeza que pretende eliminar esta notícia?</h4>
+<hr />
+
+<div class="mb-3">
+    <dl class="row">
+        <dt class="col-sm-2">Título</dt>
+        <dd class="col-sm-10">@Model.Titulo</dd>
+
+        <dt class="col-sm-2">Conteúdo</dt>
+        <dd class="col-sm-10">@Model.Conteudo</dd>
+
+        <dt class="col-sm-2">Data de Publicação</dt>
+        <dd class="col-sm-10">@Model.Data_Publicacao.ToShortDateString()</dd>
+
+        <dt class="col-sm-2">Fonte</dt>
+        <dd class="col-sm-10">@Model.Fonte</dd>
+
+        <dt class="col-sm-2">Artista</dt>
+        <dd class="col-sm-10">@Model.Artista?.Nome_Artista</dd>
+    </dl>
+</div>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>

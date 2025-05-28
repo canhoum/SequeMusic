@@ -1,27 +1,92 @@
 @model SequeMusic.Models.Artista
 
-<h2>Editar Artista</h2>
+@{
+    ViewData["Title"] = "Editar Artista";
+}
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data">
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
     <input type="hidden" asp-for="Id" />
-    <div class="form-group">
-        <label asp-for="Nome_Artista"></label>
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+    <div class="mb-3">
+        <label asp-for="Nome_Artista" class="form-label fw-semibold"></label>
         <input asp-for="Nome_Artista" class="form-control" />
-        <span asp-validation-for="Nome_Artista" class="text-danger"></span>
+        <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Biografia"></label>
-        <textarea asp-for="Biografia" class="form-control"></textarea>
+
+    <div class="mb-3">
+        <label asp-for="Biografia" class="form-label fw-semibold"></label>
+        <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Biografia" class="text-danger small"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Pais_Origem"></label>
-        <input asp-for="Pais_Origem" class="form-control" />
+
+    <div class="mb-3">
+        <label asp-for="Pais_Origem" class="form-label fw-semibold"></label>
+        <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
+        <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
+
+        <div class="mt-2" id="bandeira-container" style="display: none;">
+            <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+        </div>
     </div>
-    <div class="form-group">
-        <label>Substituir Foto (jpg, png, gif)</label>
+
+    <div class="mb-4">
+        <label class="form-label fw-semibold">Substituir Foto (jpg, png, gif)</label>
         <input type="file" name="fotoUpload" accept=".jpg,.jpeg,.png,.gif" class="form-control" />
-        <span asp-validation-for="Foto" class="text-danger"></span>
+        <span asp-validation-for="Foto" class="text-danger small"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Guardar</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success">💾 Guardar Alterações</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
 </form>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        const inputPais = document.getElementById("input-pais");
+        const bandeiraContainer = document.getElementById("bandeira-container");
+        const bandeiraImg = document.getElementById("bandeira-img");
+
+        const mapaPaises = {
+            portugal: "pt",
+            brasil: "br",
+            franca: "fr",
+            espanha: "es",
+            alemanha: "de",
+            italia: "it",
+            angola: "ao",
+            mocambique: "mz",
+            "cabo verde": "cv",
+            argentina: "ar",
+            canada: "ca",
+            chile: "cl",
+            japao: "jp",
+            china: "cn",
+            india: "in",
+            mexico: "mx",
+            suecia: "se"
+        };
+
+        function atualizarBandeira() {
+            const nome = inputPais.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const codigo = mapaPaises[nome];
+            if (codigo) {
+                bandeiraImg.src = `https://flagcdn.com/w40/${codigo}.png`;
+                bandeiraImg.alt = `Bandeira de ${nome}`;
+                bandeiraContainer.style.display = "block";
+            } else {
+                bandeiraContainer.style.display = "none";
+            }
+        }
+
+        inputPais.addEventListener("input", atualizarBandeira);
+
+        // Garante que a bandeira aparece no carregamento inicial (útil no modo Edit)
+        window.addEventListener("load", atualizarBandeira);
+    </script>
+}

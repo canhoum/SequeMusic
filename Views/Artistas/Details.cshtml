@@ -1,41 +1,94 @@
 @model SequeMusic.Models.Artista
 
-<div class="container py-4">
-    <div class="row">
-        <div class="col-md-3 text-center">
-            @if (!string.IsNullOrEmpty(Model.Foto))
-            {
-                <img src="~/uploads/@Model.Foto" alt="Foto de @Model.Nome_Artista" class="img-fluid rounded-circle border border-dark mb-3" style="width: 200px; height: 200px; object-fit: cover;" />
-            }
-            <h3 class="fw-bold">@Model.Nome_Artista</h3>
+@{
+    ViewData["Title"] = Model.Nome_Artista;
+}
+
+<!-- Estilo com fundo sólido profissional -->
+<style>
+    body {
+        background-color: #111827; /* fundo escuro elegante */
+        color: #111;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .fundo-overlay {
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(4px);
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 30px;
+    }
+
+    .biografia-limitada {
+        max-height: 130px;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .biografia-expandida {
+        max-height: 1000px;
+    }
+</style>
+
+<div class="bg-dark position-relative" style="height: 240px;"></div>
+
+<!-- Cartão com fundo suave -->
+<div class="container fundo-overlay text-center">
+    <div class="position-relative" style="margin-top: -110px;">
+        <img src="~/uploads/@Model.Foto" alt="@Model.Nome_Artista"
+             class="rounded-circle border border-white shadow"
+             style="width: 220px; height: 220px; object-fit: cover;" />
+    </div>
+
+    <h2 class="fw-bold mt-3">@Model.Nome_Artista</h2>
+    <p class="fst-italic text-muted">
+        @Model.Pais_Origem
+        <img id="bandeira-pais" class="ms-2 border rounded shadow-sm" width="40" height="26" />
+    </p>
+
+    <div class="row justify-content-center mt-5 text-start">
+        <div class="col-md-5 mb-5">
+            <h4>📖 Sobre "@Model.Nome_Artista"</h4>
+            <div id="biografia-container" class="biografia-limitada">@Model.Biografia</div>
+            <button id="toggle-biografia" class="btn btn-sm btn-link mt-1 p-0">Mostrar mais</button>
         </div>
 
-        <div class="col-md-9">
-            <h4 class="mb-3">Sobre</h4>
-            <div>
-                <h5>Biografia:</h5>
-                <div id="biografia-container" class="biografia-limitada">
-                    @Model.Biografia
-                </div>
-                <button id="toggle-biografia" class="btn btn-link p-0">Mostrar mais</button>
-            </div>
-            <p><strong>País de Origem:</strong> @Model.Pais_Origem</p>
-
-            <hr />
-
-            <h4 class="mb-3">Músicas Populares</h4>
-            @if (Model.Musicas != null && Model.Musicas.Any())
+        <div class="col-md-5 mb-5">
+            <h4>🎵 Músicas Populares</h4>
+            @if (Model.Musicas?.Any() == true)
             {
-                <div class="row">
-                    @foreach (var musica in Model.Musicas)
+                <ul class="list-group list-group-flush">
+                    @foreach (var musica in Model.Musicas.Take(5))
                     {
-                        <div class="col-md-6 mb-2">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-2">
-                                    <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="text-decoration-none">
-                                        <strong>@musica.Titulo</strong>
-                                    </a>
-                                </div>
+                        <li class="list-group-item px-0 border-0">
+                            <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="text-decoration-none">
+                                ▶️ @musica.Titulo
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Sem músicas disponíveis.</p>
+            }
+        </div>
+    </div>
+
+    <div class="row justify-content-center mb-5 text-start">
+        <div class="col-md-10">
+            <h4>📰 Notícias</h4>
+            @if (Model.Noticias?.Any() == true)
+            {
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    @foreach (var noticia in Model.Noticias.Take(4))
+                    {
+                        <div class="col">
+                            <div class="border rounded p-3 shadow-sm bg-white h-100">
+                                <a asp-controller="Noticias" asp-action="Details" asp-route-id="@noticia.Id" class="text-decoration-none fw-semibold">
+                                    @noticia.Titulo
+                                </a>
                             </div>
                         </div>
                     }
@@ -43,48 +96,36 @@
             }
             else
             {
-                <p class="text-muted">Sem músicas para mostrar.</p>
+                <p class="text-muted">Sem notícias associadas.</p>
             }
-
-            <hr />
-
-            <h4 class="mb-3">Notícias</h4>
-            @if (Model.Noticias != null && Model.Noticias.Any())
-            {
-                <ul class="list-group list-group-flush">
-                    @foreach (var noticia in Model.Noticias)
-                    {
-                        <li class="list-group-item">
-                            <a asp-controller="Noticias" asp-action="Details" asp-route-id="@noticia.Id">@noticia.Titulo</a>
-                        </li>
-                    }
-                </ul>
-            }
-            else
-            {
-                <p class="text-muted">Sem notícias para mostrar.</p>
-            }
-
-            <div class="mt-4">
-                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">Editar</a>
-                <a asp-action="Index" class="btn btn-secondary">Voltar à lista</a>
-            </div>
         </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mb-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Editar</a>
+        <a asp-action="Index" class="btn btn-outline-dark">← Voltar</a>
     </div>
 </div>
 
-<script>
-    const toggleBtn = document.getElementById("toggle-biografia");
-    const biografia = document.getElementById("biografia-container");
+@section Scripts {
+    <script>
+        const toggleBtn = document.getElementById("toggle-biografia");
+        const biografia = document.getElementById("biografia-container");
 
-    toggleBtn.addEventListener("click", function () {
-        biografia.classList.toggle("biografia-expandida");
+        toggleBtn.addEventListener("click", function () {
+            biografia.classList.toggle("biografia-expandida");
+            toggleBtn.textContent = biografia.classList.contains("biografia-expandida") ? "Mostrar menos" : "Mostrar mais";
+        });
 
-        if (biografia.classList.contains("biografia-expandida")) {
-            toggleBtn.textContent = "Mostrar menos";
-        } else {
-            toggleBtn.textContent = "Mostrar mais";
+        const pais = "@Model.Pais_Origem".trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        const mapa = {
+            portugal: "pt", brasil: "br", franca: "fr", espanha: "es", alemanha: "de",
+            italia: "it", canada: "ca", chile: "cl", india: "in", argentina: "ar", "cabo verde": "cv", "estados unidos": "us"
+        };
+        const bandeira = document.getElementById("bandeira-pais");
+        if (mapa[pais]) {
+            bandeira.src = `https://flagcdn.com/w40/${mapa[pais]}.png`;
+            bandeira.alt = "Bandeira de " + pais;
         }
-    });
-</script>
-
+    </script>
+}

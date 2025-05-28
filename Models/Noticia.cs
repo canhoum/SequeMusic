@@ -10,14 +10,15 @@ namespace SequeMusic.Models
         [Required]
         public string Titulo { get; set; }
 
-        public string Conteudo { get; set; }
+        public string Conteudo { get; set; }= "";
 
         public DateTime Data_Publicacao { get; set; }
 
-        public string Fonte { get; set; }
+        public string Fonte { get; set; }= "";
 
         // FK para Artista
         public int ArtistaId { get; set; }
         public virtual Artista Artista { get; set; }
     }
+    
 }

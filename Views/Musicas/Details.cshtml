@@ -1,4 +1,4 @@
-@model SequeMusic.Models.Musica
+@model SequeMusic.Models.Musica 
 
 @{
     ViewData["Title"] = "Detalhes da Música";
@@ -19,6 +19,14 @@
     <dt class="col-sm-2">Gênero</dt>
     <dd class="col-sm-10">@Model.Genero?.Nome</dd>
 </dl>
+
+@if (!string.IsNullOrWhiteSpace(Model.Letra))
+{
+    <h4>Letra da Música</h4>
+    <pre style="white-space: pre-wrap; background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
+@Model.Letra
+    </pre>
+}
 
 @if (!string.IsNullOrEmpty(Model.NomeFicheiroAudio))
 {

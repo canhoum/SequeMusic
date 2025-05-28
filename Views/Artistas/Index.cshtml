@@ -1,31 +1,69 @@
-@model IEnumerable<SequeMusic.Models.Artista>
+    @model IEnumerable<SequeMusic.Models.Artista>
 
-<h2>Lista de Artistas</h2>
+    @{
+        ViewData["Title"] = "Explorar Artistas";
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Adicionar Novo Artista</a>
-</p>
-
-<table class="table">
-    <thead>
-    <tr>
-        <th>Nome</th>
-        <th>País de Origem</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td>@item.Nome_Artista</td>
-            <td>@item.Pais_Origem</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id">Detalhes</a> |
-                <a asp-action="Edit" asp-route-id="@item.Id">Editar</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Eliminar</a>
-            </td>
-        </tr>
+        var ordenacao = Context.Request.Query["ordem"].ToString(); // Converte para string normal
+        IEnumerable<SequeMusic.Models.Artista> artistasOrdenados = ordenacao switch
+        {
+            "nome" => Model.OrderBy(a => a.Nome_Artista),
+            "pais" => Model.OrderBy(a => a.Pais_Origem),
+            _ => Model
+        };
     }
-    </tbody>
-</table>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">@ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-success">+ Adicionar Artista</a>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label fw-semibold">Ordenar por:</label>
+        <select class="form-select w-auto d-inline-block" onchange="location.href='?ordem=' + this.value;">
+            <option value="" disabled selected hidden>Ordenar por...</option>
+            <option value="nome" selected="@(ordenacao == "nome")">Nome</option>
+            <option value="pais" selected="@(ordenacao == "pais")">País</option>
+        </select>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var artista in artistasOrdenados)
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    <div class="card-body text-center">
+                        @if (!string.IsNullOrEmpty(artista.Foto))
+                        {
+                            <img src="~/uploads/@artista.Foto"
+                                 class="rounded-circle border mb-3"
+                                 style="width: 100px; height: 100px; object-fit: cover;" />
+                        }
+                        <h5 class="fw-bold">@artista.Nome_Artista</h5>
+
+                        <p class="text-muted mb-2">
+                            @artista.Pais_Origem
+                            @{
+                                var paisNorm = artista.Pais_Origem?.ToLower().Trim().Normalize(System.Text.NormalizationForm.FormD);
+                                var mapa = new Dictionary<string, string> {
+                                    ["portugal"] = "pt", ["canada"] = "ca", ["alemanha"] = "de",
+                                    ["brasil"] = "br", ["franca"] = "fr", ["espanha"] = "es" , ["estados unidos"] = "us"
+                                };
+
+                                var clean = new string(paisNorm?.Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark).ToArray());
+                                if (mapa.ContainsKey(clean))
+                                {
+                                    <img src="https://flagcdn.com/w40/@(mapa[clean]).png" alt="Bandeira" width="24" height="16" class="ms-1 border rounded" />
+                                }
+                            }
+                        </p>
+
+                        <div class="d-flex justify-content-center gap-2 mt-3">
+                            <a asp-action="Details" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-info">👁 Detalhes</a>
+                            <a asp-action="Edit" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-warning">✏️ Editar</a>
+                            <a asp-action="Delete" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
