@@ -34,7 +34,9 @@
                     <div>
                         <strong>@musica.Titulo</strong> - @musica.Artista.Nome_Artista
                     </div>
-                    <a href="/Musica/Details/@musica.ID" class="btn btn-sm btn-outline-secondary">Ver</a>
+                    <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="btn btn-sm btn-outline-secondary">
+                        Ver
+                    </a>
                 </li>
             }
         </ol>

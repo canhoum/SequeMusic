@@ -15,7 +15,9 @@ namespace SequeMusic.Models
         public DateTime Data_Avaliacao { get; set; }
 
         // FK para Musica
+        
         public int MusicaId { get; set; }
+        
         public virtual Musica Musica { get; set; }
 
         // FK para Utilizador
