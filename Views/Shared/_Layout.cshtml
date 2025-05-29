@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/SequeMusic.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
     <style>
         .nav-secondary {
@@ -43,8 +45,8 @@
     <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
 
         <div class="container-fluid">
-            <form class="d-flex me-3">
-                <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
+            <form class="d-flex me-3" asp-controller="Home" asp-action="Pesquisar" method="get">
+                <input class="form-control me-2" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar">
                 <button class="btn btn-outline-light" type="submit">🔍</button>
             </form>
 

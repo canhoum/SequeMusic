@@ -45,5 +45,17 @@ body {
 .biografia-expandida {
   -webkit-line-clamp: unset;
 }
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
 
+.card:hover {
+  transform: scale(1.02);
+  transition: transform 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
 
