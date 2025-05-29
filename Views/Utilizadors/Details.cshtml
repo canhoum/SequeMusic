@@ -14,52 +14,55 @@
                 <dt class="col-sm-3">
                     <i class="bi bi-person-fill"></i> Nome
                 </dt>
-                <dd class="col-sm-9">
-                    @Model.Nome
-                </dd>
+                <dd class="col-sm-9">@Model.Nome</dd>
 
                 <dt class="col-sm-3">
                     <i class="bi bi-envelope-fill"></i> Email
                 </dt>
-                <dd class="col-sm-9">
-                    @Model.Email
-                </dd>
+                <dd class="col-sm-9">@Model.Email</dd>
 
                 <dt class="col-sm-3">
                     <i class="bi bi-phone-fill"></i> Telemóvel
                 </dt>
-                <dd class="col-sm-9">
-                    @Model.Telemovel
-                </dd>
+                <dd class="col-sm-9">@Model.Telemovel</dd>
 
                 <dt class="col-sm-3">
                     <i class="bi bi-calendar-event-fill"></i> Data de Nascimento
                 </dt>
-                <dd class="col-sm-9">
-                    @Model.DataNascFormatted
-                </dd>
+                <dd class="col-sm-9">@Model.DataNascFormatted</dd>
 
                 @if (Model.IsAdmin)
                 {
                     <dt class="col-sm-3">
                         <i class="bi bi-shield-lock-fill"></i> Administrador
                     </dt>
-                    <dd class="col-sm-9">
-                        Sim
-                    </dd>
+                    <dd class="col-sm-9">Sim</dd>
                 }
             </dl>
         </div>
-        <div class="card-footer text-end">
-            <a asp-controller="Avaliacao" asp-action="Utilizador" class="btn btn-info me-2">
-                <i class="bi bi-chat-dots-fill"></i> Ver Minhas Avaliações
-            </a>
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left-circle"></i> Voltar à Lista
-            </a>
+
+        <div class="card-footer text-end d-flex flex-wrap justify-content-between align-items-center">
+            <div class="mb-2 mb-md-0">
+                @if (User.Identity.IsAuthenticated &&
+                     (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Id || User.IsInRole("Admin")))
+                {
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
+                        <i class="bi bi-pencil-square"></i> Editar Perfil
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger me-2">
+                        <i class="bi bi-trash-fill"></i> Apagar Conta
+                    </a>
+                }
+            </div>
+
+            <div>
+                <a asp-controller="Avaliacao" asp-action="Utilizador" class="btn btn-info me-2">
+                    <i class="bi bi-chat-dots-fill"></i> Ver Minhas Avaliações
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-circle"></i> Voltar à Lista
+                </a>
+            </div>
         </div>
-
-
-
     </div>
 </div>
