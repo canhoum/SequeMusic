@@ -168,39 +168,40 @@ namespace SequeMusic.Controllers
         
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (id != userId && !isAdmin)
+                return Forbid();
 
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (utilizador == null)
-            {
-                return NotFound();
-            }
+            if (utilizador == null) return NotFound();
+
             return View(utilizador);
         }
+
 
         // POST: Utilizadors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        
         public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,Email,Telemovel,DataNascimento")] Utilizador utilizador)
         {
-            if (id != utilizador.Id)
-            {
-                return NotFound();
-            }
+            if (id != utilizador.Id) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (id != userId && !isAdmin)
+                return Forbid();
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     var userToUpdate = await _userManager.FindByIdAsync(id);
-                    if (userToUpdate == null)
-                    {
-                        return NotFound();
-                    }
+                    if (userToUpdate == null) return NotFound();
 
                     userToUpdate.Nome = utilizador.Nome;
                     userToUpdate.Email = utilizador.Email;
@@ -212,67 +213,78 @@ namespace SequeMusic.Controllers
                     if (!result.Succeeded)
                     {
                         foreach (var error in result.Errors)
-                        {
                             ModelState.AddModelError(string.Empty, error.Description);
-                        }
+
                         return View(utilizador);
                     }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!await UtilizadorExists(utilizador.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!await UtilizadorExists(utilizador.Id)) return NotFound();
+                    else throw;
                 }
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToAction("Details", new { id = id });
             }
+
             return View(utilizador);
         }
+
 
         // GET: Utilizadors/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var utilizador = await _userManager.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizador == null)
-            {
-                return NotFound();
-            }
+            var userId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (id != userId && !isAdmin)
+                return Forbid();
+
+            var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (utilizador == null) return NotFound();
 
             return View(utilizador);
         }
+
 
         // POST: Utilizadors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            var userId = _userManager.GetUserId(User);
+            var isAdmin = User.IsInRole("Admin");
+
+            if (id != userId && !isAdmin)
+                return Forbid();
+
             var utilizador = await _userManager.FindByIdAsync(id);
-            if (utilizador != null)
+            if (utilizador == null) return NotFound();
+
+            var result = await _userManager.DeleteAsync(utilizador);
+            if (!result.Succeeded)
             {
-                var result = await _userManager.DeleteAsync(utilizador);
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                    return View(utilizador);
-                }
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View(utilizador);
+            }
+
+            // Se o próprio utilizador apagou a conta, termina a sessão
+            if (!isAdmin)
+            {
+                await _signInManager.SignOutAsync();
+                Response.Cookies.Delete("UserAuthCookie");
+                return RedirectToAction("Index", "Home");
             }
 
             return RedirectToAction(nameof(Index));
         }
+
+        
+        
 
         private async Task<bool> UtilizadorExists(string id)
         {
