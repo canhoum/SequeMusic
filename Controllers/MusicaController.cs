@@ -24,6 +24,7 @@ namespace SequeMusic.Controllers
             var query = _context.Musicas
                 .Include(m => m.Artista)
                 .Include(m => m.Genero)
+                .OrderBy(m => m.PosicaoBillboard ?? 999)
                 .AsQueryable();
 
             if (!User.IsInRole("Admin"))
@@ -208,5 +209,19 @@ namespace SequeMusic.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AtualizarPosicao(int id, int posicao)
+        {
+            var musica = await _context.Musicas.FindAsync(id);
+            if (musica == null) return NotFound();
+
+            musica.PosicaoBillboard = posicao;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
     }
 }

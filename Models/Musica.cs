@@ -21,6 +21,9 @@ public class Musica
     public string LinkAudio { get; set; } = "";
 
     public string NomeFicheiroAudio { get; set; } = "";
+    
+    public int? PosicaoBillboard { get; set; } // 1-100
+
 
     // Relação N:1 com Artista
     public int ArtistaId { get; set; }
