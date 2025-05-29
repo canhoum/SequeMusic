@@ -85,7 +85,7 @@ namespace SequeMusic.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
         {
             if (id != noticia.Id) return NotFound();
-
+            ModelState.Remove("Artista");
             if (ModelState.IsValid)
             {
                 try
