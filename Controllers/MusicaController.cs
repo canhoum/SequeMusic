@@ -19,13 +19,40 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string generoFiltro, string artistaFiltro, int? anoFiltro)
         {
-            var musicas = _context.Musicas
+            var query = _context.Musicas
                 .Include(m => m.Artista)
-                .Include(m => m.Genero);
-            return View(await musicas.ToListAsync());
+                .Include(m => m.Genero)
+                .AsQueryable();
+
+            if (!User.IsInRole("Admin"))
+            {
+                // Apenas o sistema define o Top 10 (ex: por número de streamings)
+                var top10 = await query
+                    .OrderByDescending(m => m.Streamings.Sum(s => s.NumeroDeStreams))
+                    .Take(10)
+                    .ToListAsync();
+
+                return View(top10);
+            }
+
+            // Admin: aplicar filtros se existirem
+            if (!string.IsNullOrEmpty(generoFiltro))
+                query = query.Where(m => m.Genero.Nome == generoFiltro);
+
+            if (!string.IsNullOrEmpty(artistaFiltro))
+                query = query.Where(m => m.Artista.Nome_Artista == artistaFiltro);
+
+            if (anoFiltro.HasValue)
+                query = query.Where(m => m.AnoDeLancamento == anoFiltro.Value);
+
+            ViewBag.Generos = new SelectList(await _context.Generos.ToListAsync(), "Nome", "Nome");
+            ViewBag.Artistas = new SelectList(await _context.Artistas.ToListAsync(), "Nome_Artista", "Nome_Artista");
+
+            return View(await query.ToListAsync());
         }
+
 
         // GET: Musicas/Details/5
         public async Task<IActionResult> Details(int? id)

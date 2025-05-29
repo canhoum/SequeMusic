@@ -1,28 +1,53 @@
 @model IEnumerable<SequeMusic.Models.Musica>
+@using Microsoft.AspNetCore.Identity
 
 @{
-    ViewData["Title"] = "Lista de Músicas";
+    ViewData["Title"] = User.IsInRole("Admin") ? "Todas as Músicas" : "Top 10 Billboard";
 }
 
 <h2>@ViewData["Title"]</h2>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Adicionar Nova Música</a>
-</p>
+@if (User.IsInRole("Admin"))
+{
+    <div class="mb-3">
+        <form method="get" class="row g-2">
+            <div class="col-md-3">
+                <select name="generoFiltro" class="form-select" asp-items="ViewBag.Generos">
+                    <option value="">-- Género --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="artistaFiltro" class="form-select" asp-items="ViewBag.Artistas">
+                    <option value="">-- Artista --</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="anoFiltro" class="form-control" placeholder="Ano" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
+            </div>
+            <div class="col-md-2 text-end">
+                <a asp-action="Create" class="btn btn-success w-100">+ Adicionar Música</a>
+            </div>
+        </form>
+    </div>
+}
 
-<table class="table">
-    <thead>
+<table class="table table-striped">
+    <thead class="table-dark">
     <tr>
         <th>Título</th>
         <th>Álbum</th>
         <th>Ano</th>
         <th>Artista</th>
-        <th>Gênero</th>
+        <th>Género</th>
         <th></th>
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model) {
+    @foreach (var item in Model)
+    {
         <tr>
             <td>@item.Titulo</td>
             <td>@item.Album</td>
@@ -30,10 +55,16 @@
             <td>@item.Artista?.Nome_Artista</td>
             <td>@item.Genero?.Nome</td>
             <td>
-                <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a> |
-                <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Apagar</a>
+                <a asp-action="Details" asp-route-id="@item.ID">👁 Detalhes</a>
+                @if (User.IsInRole("Admin"))
+                {
+                    <span> | </span>
+                    <a asp-action="Edit" asp-route-id="@item.ID">✏️ Editar</a>
+                    <span> | </span>
+                    <a asp-action="Delete" asp-route-id="@item.ID">🗑️ Apagar</a>
+                }
             </td>
+
         </tr>
     }
     </tbody>
