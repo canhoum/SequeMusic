@@ -66,6 +66,32 @@ namespace SequeMusic.Controllers
 
             return View("Pesquisar", viewModel);
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> Sugestoes(string termo)
+        {
+            if (string.IsNullOrWhiteSpace(termo))
+                return Json(new { artistas = new List<object>(), musicas = new List<object>() });
+
+            var artistas = await _context.Artistas
+                .Where(a => a.Nome_Artista.Contains(termo))
+                .Select(a => new { tipo = "artista", id = a.Id, nome = a.Nome_Artista })
+                .ToListAsync();
+
+            var musicas = await _context.Musicas
+                .Include(m => m.Artista)
+                .Where(m => m.Titulo.Contains(termo))
+                .Select(m => new {
+                    tipo = "musica",
+                    id = m.ID,
+                    titulo = m.Titulo,
+                    artista = m.Artista.Nome_Artista
+                }).ToListAsync();
+
+            return Json(new { artistas, musicas });
+        }
+
+
 
         public IActionResult Privacy()
         {

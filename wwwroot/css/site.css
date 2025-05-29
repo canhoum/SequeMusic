@@ -59,3 +59,18 @@ body {
   background-color: #f8f9fa;
 }
 
+.dropdown-menu {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: #222;
+  color: white;
+}
+.dropdown-item {
+  color: white;
+}
+.dropdown-item:hover {
+  background-color: #1ED760;
+  color: black;
+}
+
+
