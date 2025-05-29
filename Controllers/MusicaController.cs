@@ -45,7 +45,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
@@ -56,7 +56,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
         {
             ModelState.Remove("Genero");
@@ -95,7 +95,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -111,7 +111,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, Musica musica, IFormFile ficheiroAudio)
         {
             if (id != musica.ID) return NotFound();
@@ -157,7 +157,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -173,7 +173,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var musica = await _context.Musicas.FindAsync(id);

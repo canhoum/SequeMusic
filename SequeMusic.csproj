@@ -4,6 +4,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,5 +28,7 @@
       <_ContentIncludedByDefault Remove="SequeMusic\obj\project.packagespec.json" />
       <_ContentIncludedByDefault Remove="SequeMusic\obj\SequeMusic.csproj.nuget.dgspec.json" />
     </ItemGroup>
+
+
 
 </Project>

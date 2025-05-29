@@ -165,6 +165,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Utilizadors/Edit/5
+        
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -183,6 +184,7 @@ namespace SequeMusic.Controllers
         // POST: Utilizadors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,Email,Telemovel,DataNascimento")] Utilizador utilizador)
         {
             if (id != utilizador.Id)

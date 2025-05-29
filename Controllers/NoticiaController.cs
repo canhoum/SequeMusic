@@ -40,7 +40,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Noticia/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             PreencherArtistasDropdown();
@@ -50,7 +50,7 @@ namespace SequeMusic.Controllers
         // POST: Noticia/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
         {
             ModelState.Remove("Artista");
@@ -66,7 +66,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Noticia/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -81,7 +81,7 @@ namespace SequeMusic.Controllers
         // POST: Noticia/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
         {
             if (id != noticia.Id) return NotFound();
@@ -108,7 +108,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Noticia/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -125,7 +125,7 @@ namespace SequeMusic.Controllers
         // POST: Noticia/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var noticia = await _context.Noticias.FindAsync(id);
