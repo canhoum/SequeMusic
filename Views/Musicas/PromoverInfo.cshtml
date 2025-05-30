@@ -1,0 +1,19 @@
+@{
+    ViewData["Title"] = "Promover a minha música";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4 text-center">
+        <h2 class="mb-3">🎧 Quer promover a sua música?</h2>
+        <p class="lead mb-4">
+            Esta funcionalidade está disponível para utilizadores <strong>Premium</strong>.
+            Ao tornar-se Premium, poderá adicionar as suas próprias músicas à plataforma SequeMusic e partilhá-las com o mundo!
+        </p>
+
+        <a asp-controller="Utilizadors" asp-action="Upgrade" class="btn btn-warning btn-lg">
+            ⭐ Tornar-me Premium
+        </a>
+
+        <p class="text-muted mt-3">* Não se preocupe, o processo é rápido e sem custos reais.</p>
+    </div>
+</div>

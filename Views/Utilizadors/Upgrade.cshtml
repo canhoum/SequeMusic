@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "Torna-te Premium";
+}
+
+<div class="container mt-5">
+    <div class="card shadow mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h3 class="text-center mb-4">🎧 Torna-te Premium</h3>
+            <p class="text-muted text-center mb-4">Preenche os dados abaixo para simular um pagamento fictício.</p>
+
+            <form asp-action="ConfirmUpgrade" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Nome no Cartão</label>
+                    <input class="form-control" type="text" name="nome" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Número do Cartão</label>
+                    <input class="form-control" type="text" name="cartao" placeholder="**** **** **** 1234" required maxlength="19" />
+                </div>
+                <div class="row mb-3">
+                    <div class="col">
+                        <label class="form-label">Validade</label>
+                        <input class="form-control" type="text" name="validade" placeholder="MM/AA" required />
+                    </div>
+                    <div class="col">
+                        <label class="form-label">CVC</label>
+                        <input class="form-control" type="text" name="cvc" maxlength="4" required />
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        ✅ Confirmar Pagamento
+                    </button>
+                </div>
+            </form>
+
+            <p class="text-muted text-center mt-3">
+                * Este pagamento é meramente fictício e serve apenas para fins académicos.
+            </p>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,33 +13,31 @@ namespace SequeMusic.Controllers
     public class MusicasController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<Utilizador> _userManager;
 
-        public MusicasController(ApplicationDbContext context)
+        public MusicasController(ApplicationDbContext context, UserManager<Utilizador> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
-        // GET: Musicas
         public async Task<IActionResult> Index(string generoFiltro, string artistaFiltro, int? anoFiltro)
         {
             var query = _context.Musicas
                 .Include(m => m.Artista)
                 .Include(m => m.Genero)
-                .OrderBy(m => m.PosicaoBillboard ?? 999)
+                .Include(m => m.Streamings)
                 .AsQueryable();
 
             if (!User.IsInRole("Admin"))
             {
-                // Apenas o sistema define o Top 10 (ex: por número de streamings)
                 var top10 = await query
                     .OrderByDescending(m => m.Streamings.Sum(s => s.NumeroDeStreams))
                     .Take(10)
                     .ToListAsync();
-
                 return View(top10);
             }
 
-            // Admin: aplicar filtros se existirem
             if (!string.IsNullOrEmpty(generoFiltro))
                 query = query.Where(m => m.Genero.Nome == generoFiltro);
 
@@ -51,11 +50,9 @@ namespace SequeMusic.Controllers
             ViewBag.Generos = new SelectList(await _context.Generos.ToListAsync(), "Nome", "Nome");
             ViewBag.Artistas = new SelectList(await _context.Artistas.ToListAsync(), "Nome_Artista", "Nome_Artista");
 
-            return View(await query.ToListAsync());
+            return View(await query.OrderBy(m => m.PosicaoBillboard ?? 999).ToListAsync());
         }
 
-
-        // GET: Musicas/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -72,23 +69,31 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Create
-        [Authorize(Roles = "Admin")]
-        public IActionResult Create()
+        [Authorize]
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (!user.IsAdmin && !user.IsPremium)
+            {
+                return Forbid();
+            }
+
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome");
             return View();
         }
 
-        // POST: Musicas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (!user.IsAdmin && !user.IsPremium) return Forbid();
+
             ModelState.Remove("Genero");
             ModelState.Remove("Artista");
+
             if (ModelState.IsValid)
             {
                 if (ficheiroAudio != null && ficheiroAudio.Length > 0)
@@ -97,11 +102,10 @@ namespace SequeMusic.Controllers
                     if (extensao.ToLower() != ".mp3")
                     {
                         ModelState.AddModelError(string.Empty, "Apenas ficheiros .mp3 são permitidos.");
-
                         return View(musica);
                     }
 
-                    var nomeUnico = Guid.NewGuid().ToString() + extensao;
+                    var nomeUnico = Guid.NewGuid() + extensao;
                     var caminho = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", nomeUnico);
 
                     using (var stream = new FileStream(caminho, FileMode.Create))
@@ -122,7 +126,6 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Edit/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -136,7 +139,6 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // POST: Musicas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -157,7 +159,7 @@ namespace SequeMusic.Controllers
                             return View(musica);
                         }
 
-                        var nomeUnico = Guid.NewGuid().ToString() + extensao;
+                        var nomeUnico = Guid.NewGuid() + extensao;
                         var caminho = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", nomeUnico);
 
                         using (var stream = new FileStream(caminho, FileMode.Create))
@@ -184,7 +186,6 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // GET: Musicas/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -198,7 +199,6 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // POST: Musicas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -209,7 +209,7 @@ namespace SequeMusic.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AtualizarPosicao(int id, int posicao)
@@ -222,6 +222,22 @@ namespace SequeMusic.Controllers
 
             return RedirectToAction("Index");
         }
+        
+        [Authorize]
+        public async Task<IActionResult> Promover()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user.IsPremium || user.IsAdmin)
+            {
+                ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
+                ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome");
+                return View("PromoverCreate");
+            }
+
+            return View("PromoverInfo");
+        }
+
 
     }
 }

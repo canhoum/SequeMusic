@@ -1,0 +1,53 @@
+@model SequeMusic.Models.Musica
+
+@{
+    ViewData["Title"] = "Promover a minha música";
+}
+
+<div class="container mt-5">
+    <div class="card shadow p-4">
+        <h2 class="mb-4 text-center">🎤 Promover a minha música</h2>
+
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Titulo" class="form-label"></label>
+                <input asp-for="Titulo" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Album" class="form-label"></label>
+                <input asp-for="Album" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Letra" class="form-label"></label>
+                <textarea asp-for="Letra" class="form-control"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="AnoDeLancamento" class="form-label"></label>
+                <input asp-for="AnoDeLancamento" class="form-control" />
+            </div>
+
+
+            <div class="mb-3">
+                <label asp-for="GeneroId" class="form-label"></label>
+                <select asp-for="GeneroId" class="form-select" asp-items="ViewBag.GeneroId"></select>
+            </div>
+
+            <div class="mb-3">
+                <label for="ficheiroAudio" class="form-label">Ficheiro Áudio (.mp3)</label>
+                <input type="file" name="ficheiroAudio" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">💾 Guardar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

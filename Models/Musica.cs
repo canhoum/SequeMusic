@@ -22,7 +22,9 @@ public class Musica
 
     public string NomeFicheiroAudio { get; set; } = "";
     
-    public int? PosicaoBillboard { get; set; } // 1-100
+    public int? PosicaoBillboard { get; set; } 
+    
+    
 
 
     // Relação N:1 com Artista
