@@ -46,8 +46,8 @@
     <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
 
         <div class="container-fluid">
-            <form class="d-flex me-3 position-relative" id="formPesquisa">
-                <input class="form-control me-2" id="campoPesquisa" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar" autocomplete="off">
+            <form class="d-flex me-3 position-relative" id="formPesquisa" asp-controller="Home" asp-action="Pesquisar" method="get">
+            <input class="form-control me-2" id="campoPesquisa" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar" autocomplete="off">
                 <button class="btn btn-outline-light" type="submit">🔍</button>
 
                 <div id="sugestoes" class="dropdown-menu show w-100 mt-1" style="display: none; position: absolute; top: 100%; z-index: 999;"></div>
