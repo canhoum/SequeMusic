@@ -88,21 +88,39 @@ namespace SequeMusic.Controllers
         [Authorize]
         public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (!user.IsAdmin && !user.IsPremium) return Forbid();
-
             ModelState.Remove("Genero");
             ModelState.Remove("Artista");
+
+            var user = await _userManager.GetUserAsync(User);
+
+            if (!user.IsPremium && !user.IsAdmin)
+                return Forbid();
+
+            // ✅ Verifica se já existe um artista com o nome do utilizador
+            var artista = await _context.Artistas.FirstOrDefaultAsync(a => a.Nome_Artista == user.Nome);
+            if (artista == null)
+            {
+                artista = new Artista
+                {
+                    Nome_Artista = user.Nome,
+                    Biografia = "Artista registado por conta premium.",
+                    Pais_Origem = "Desconhecido"
+                };
+                _context.Artistas.Add(artista);
+                await _context.SaveChangesAsync();
+            }
+
+            musica.ArtistaId = artista.Id;
 
             if (ModelState.IsValid)
             {
                 if (ficheiroAudio != null && ficheiroAudio.Length > 0)
                 {
-                    var extensao = Path.GetExtension(ficheiroAudio.FileName);
-                    if (extensao.ToLower() != ".mp3")
+                    var extensao = Path.GetExtension(ficheiroAudio.FileName).ToLower();
+                    if (extensao != ".mp3")
                     {
                         ModelState.AddModelError(string.Empty, "Apenas ficheiros .mp3 são permitidos.");
-                        return View(musica);
+                        return View("PromoverCreate", musica);
                     }
 
                     var nomeUnico = Guid.NewGuid() + extensao;
@@ -118,13 +136,14 @@ namespace SequeMusic.Controllers
 
                 _context.Add(musica);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                TempData["Mensagem"] = "🎉 Música promovida com sucesso!";
+                return RedirectToAction("Index");
             }
 
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
-            return View(musica);
+            return View("PromoverCreate", musica);
         }
+
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
