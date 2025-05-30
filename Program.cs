@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
 // --------------------
 // Configurar o Identity
 // --------------------
@@ -61,6 +62,18 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+
+
+// --------------------
+// Role de Admin
+// --------------------
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.CriarUtilizadorAdmin(services);
+}
+
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

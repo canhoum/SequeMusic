@@ -19,13 +19,41 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string generoFiltro, string artistaFiltro, int? anoFiltro)
         {
-            var musicas = _context.Musicas
+            var query = _context.Musicas
                 .Include(m => m.Artista)
-                .Include(m => m.Genero);
-            return View(await musicas.ToListAsync());
+                .Include(m => m.Genero)
+                .OrderBy(m => m.PosicaoBillboard ?? 999)
+                .AsQueryable();
+
+            if (!User.IsInRole("Admin"))
+            {
+                // Apenas o sistema define o Top 10 (ex: por número de streamings)
+                var top10 = await query
+                    .OrderByDescending(m => m.Streamings.Sum(s => s.NumeroDeStreams))
+                    .Take(10)
+                    .ToListAsync();
+
+                return View(top10);
+            }
+
+            // Admin: aplicar filtros se existirem
+            if (!string.IsNullOrEmpty(generoFiltro))
+                query = query.Where(m => m.Genero.Nome == generoFiltro);
+
+            if (!string.IsNullOrEmpty(artistaFiltro))
+                query = query.Where(m => m.Artista.Nome_Artista == artistaFiltro);
+
+            if (anoFiltro.HasValue)
+                query = query.Where(m => m.AnoDeLancamento == anoFiltro.Value);
+
+            ViewBag.Generos = new SelectList(await _context.Generos.ToListAsync(), "Nome", "Nome");
+            ViewBag.Artistas = new SelectList(await _context.Artistas.ToListAsync(), "Nome_Artista", "Nome_Artista");
+
+            return View(await query.ToListAsync());
         }
+
 
         // GET: Musicas/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -45,7 +73,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Create
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
@@ -56,7 +84,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
         {
             ModelState.Remove("Genero");
@@ -95,7 +123,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Edit/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -111,7 +139,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, Musica musica, IFormFile ficheiroAudio)
         {
             if (id != musica.ID) return NotFound();
@@ -157,7 +185,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Musicas/Delete/5
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -173,7 +201,7 @@ namespace SequeMusic.Controllers
         // POST: Musicas/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var musica = await _context.Musicas.FindAsync(id);
@@ -181,5 +209,19 @@ namespace SequeMusic.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AtualizarPosicao(int id, int posicao)
+        {
+            var musica = await _context.Musicas.FindAsync(id);
+            if (musica == null) return NotFound();
+
+            musica.PosicaoBillboard = posicao;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
     }
 }

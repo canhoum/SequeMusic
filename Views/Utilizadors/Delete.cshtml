@@ -1,0 +1,38 @@
+@model SequeMusic.Models.Utilizador
+
+@{
+    ViewData["Title"] = "Apagar Conta";
+}
+
+<div class="container mt-4">
+    <div class="card border-danger shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">⚠️ Apagar Conta</h4>
+        </div>
+        <div class="card-body">
+            <p class="lead text-danger">
+                Está prestes a apagar definitivamente a sua conta <strong>@Model.Nome</strong>.
+            </p>
+            <p>Esta ação é <strong>irreversível</strong> e irá eliminar:</p>
+            <ul>
+                <li>Os seus dados pessoais</li>
+                <li>As suas avaliações</li>
+                <li>O acesso à sua conta</li>
+            </ul>
+
+            <p class="fw-semibold mt-4">Tem a certeza que deseja continuar?</p>
+
+            <form asp-action="DeleteConfirmed" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-danger">
+                        🗑️ Sim, apagar a minha conta
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -39,6 +39,7 @@ namespace SequeMusic.Controllers
         }
 
         // GET: Generos/Create
+        
         public IActionResult Create()
         {
             return View();
@@ -47,6 +48,7 @@ namespace SequeMusic.Controllers
         // POST: Generos/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> Create([Bind("Id,Nome,Descricao")] Genero genero)
         {
             if (ModelState.IsValid)

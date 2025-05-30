@@ -1,0 +1,47 @@
+@model IEnumerable<SequeMusic.Models.Avaliacao>
+
+@{
+    ViewData["Title"] = "Minhas Avaliações";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4">@ViewData["Title"]</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Ainda não fizeste nenhuma avaliação.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th scope="col">🎵 Música</th>
+                    <th scope="col">⭐ Nota</th>
+                    <th scope="col">💬 Comentário</th>
+                    <th scope="col">📅 Data</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <a asp-controller="Musicas"
+                               asp-action="Details"
+                               asp-route-id="@item.MusicaId"
+                               class="text-decoration-none text-primary fw-semibold">
+                                @item.Musica?.Titulo
+                            </a>
+                        </td>
+                        <td>@item.Nota</td>
+                        <td>@item.Comentario</td>
+                        <td>@item.Data_Avaliacao.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

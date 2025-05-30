@@ -6,43 +6,55 @@
 
 <h2 class="mb-4">@ViewData["Title"]</h2>
 
-<form asp-action="Edit" method="post" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
-    <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+@if (User.IsInRole("Admin"))
+{
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-    <div class="mb-3">
-        <label asp-for="Nome_Artista" class="form-label fw-semibold"></label>
-        <input asp-for="Nome_Artista" class="form-control" />
-        <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Nome_Artista" class="form-label fw-semibold"></label>
+            <input asp-for="Nome_Artista" class="form-control" />
+            <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="Biografia" class="form-label fw-semibold"></label>
-        <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Biografia" class="text-danger small"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Biografia" class="form-label fw-semibold"></label>
+            <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Biografia" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="Pais_Origem" class="form-label fw-semibold"></label>
-        <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
-        <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
+        <div class="mb-3">
+            <label asp-for="Pais_Origem" class="form-label fw-semibold"></label>
+            <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
+            <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
 
-        <div class="mt-2" id="bandeira-container" style="display: none;">
-            <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+            <div class="mt-2" id="bandeira-container" style="display: none;">
+                <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label fw-semibold">Substituir Foto (jpg, png, gif)</label>
+            <input type="file" name="fotoUpload" accept=".jpg,.jpeg,.png,.gif" class="form-control" />
+            <span asp-validation-for="Foto" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">💾 Guardar Alterações</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning mt-3">
+        <i class="fas fa-lock"></i> Apenas administradores podem editar artistas.
+        <div class="mt-2">
+            <a asp-action="Index" class="btn btn-outline-primary">← Voltar à lista</a>
         </div>
     </div>
-
-    <div class="mb-4">
-        <label class="form-label fw-semibold">Substituir Foto (jpg, png, gif)</label>
-        <input type="file" name="fotoUpload" accept=".jpg,.jpeg,.png,.gif" class="form-control" />
-        <span asp-validation-for="Foto" class="text-danger small"></span>
-    </div>
-
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-success">💾 Guardar Alterações</button>
-        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-    </div>
-</form>
+}
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
@@ -85,8 +97,6 @@
         }
 
         inputPais.addEventListener("input", atualizarBandeira);
-
-        // Garante que a bandeira aparece no carregamento inicial (útil no modo Edit)
         window.addEventListener("load", atualizarBandeira);
     </script>
 }

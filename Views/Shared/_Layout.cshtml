@@ -4,9 +4,12 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - SequeMusic</title>
+    <link rel="icon" type="image/x-icon" href="~/ChatGPT Image 30_05_2025, 01_00_59 (2).png" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/SequeMusic.styles.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
     <style>
         .nav-secondary {
@@ -43,9 +46,11 @@
     <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
 
         <div class="container-fluid">
-            <form class="d-flex me-3">
-                <input class="form-control me-2" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
+            <form class="d-flex me-3 position-relative" id="formPesquisa">
+                <input class="form-control me-2" id="campoPesquisa" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar" autocomplete="off">
                 <button class="btn btn-outline-light" type="submit">🔍</button>
+
+                <div id="sugestoes" class="dropdown-menu show w-100 mt-1" style="display: none; position: absolute; top: 100%; z-index: 999;"></div>
             </form>
 
             <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white text-uppercase fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
@@ -139,6 +144,56 @@
         setTheme(savedTheme);
     });
 </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('campoPesquisa');
+            const dropdown = document.getElementById('sugestoes');
+
+            input.addEventListener('input', function () {
+                const query = input.value.trim();
+                if (!query) {
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
+                    return;
+                }
+
+                fetch(`/Home/Sugestoes?termo=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        dropdown.innerHTML = '';
+                        let conteudo = '';
+
+                        if (data.artistas.length) {
+                            conteudo += `<h6 class="dropdown-header">Artistas</h6>`;
+                            data.artistas.forEach(a => {
+                                conteudo += `<a class="dropdown-item" href="/Artistas/Details/${a.id}">${a.nome}</a>`;
+                            });
+                        }
+
+                        if (data.musicas.length) {
+                            conteudo += `<h6 class="dropdown-header">Músicas</h6>`;
+                            data.musicas.forEach(m => {
+                                conteudo += `<a class="dropdown-item" href="/Musicas/Details/${m.id}">${m.titulo} - <small>${m.artista}</small></a>`;
+                            });
+                        }
+
+                        dropdown.innerHTML = conteudo || '<span class="dropdown-item disabled">Sem resultados</span>';
+                        dropdown.style.display = 'block';
+                    });
+            });
+
+            // Esconde dropdown ao clicar fora
+            document.addEventListener('click', function (e) {
+                if (!document.getElementById('formPesquisa').contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}
+
 
 </body>
 </html>
