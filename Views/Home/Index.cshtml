@@ -1,45 +1,102 @@
-﻿<div class="container py-4">
+﻿<div class="container py-5">
 
+    <!-- Cabeçalho -->
     <div class="text-center mb-5">
-        <h1 class="display-4">Bem-vindo à SequeMusic!</h1>
-        <p class="lead">A tua plataforma para descobrir, ouvir e partilhar música.</p>
+        <h1 class="display-3 fw-bold">Bem-vindo à SequeMusic!</h1>
+        <p class="lead text-muted">A tua plataforma para descobrir, ouvir e partilhar música.</p>
     </div>
 
-    <!-- Notícias Recentes -->
+    <!-- NOTÍCIAS RECENTES -->
     <section class="mb-5">
-        <h2>📰 Notícias Recentes</h2>
-        <div class="row">
-            @foreach (var noticia in ViewBag.Noticias)
-            {
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title">@noticia.Titulo</h5>
-                            <p class="card-text">@noticia.Conteudo</p>
-                            <a href="/Noticia/Details/@noticia.Id" class="btn btn-sm btn-outline-primary">Ler mais</a>
+        <h2 class="fw-bold text-uppercase border-bottom pb-2 mb-4" style="font-size: 1.8rem;">
+            <i class="bi bi-newspaper me-2"></i>Notícias Recentes
+        </h2>
+
+        @if (ViewBag.Noticias != null && ViewBag.Noticias.Count > 0)
+        {
+            var noticiaDestaque = ViewBag.Noticias[0];
+            var outrasNoticias = ((List<SequeMusic.Models.Noticia>)ViewBag.Noticias).Skip(1).ToList();
+
+            <!-- NOTÍCIA EM DESTAQUE COM IMAGEM À DIREITA -->
+            <div class="row mb-5 bg-white rounded shadow-sm overflow-hidden align-items-center g-0">
+                <!-- TEXTO -->
+                <div class="col-md-7 p-4 d-flex flex-column justify-content-center">
+                    <small class="text-uppercase text-muted fw-bold">Notícia</small>
+                    <h2 class="fw-bold fs-2 mt-2 mb-3">@noticiaDestaque.Titulo</h2>
+                    <p class="text-muted mb-3">
+                        @noticiaDestaque.Conteudo?.Substring(0, Math.Min(220, noticiaDestaque.Conteudo.Length))...
+                    </p>
+                    <p class="text-muted small fst-italic mb-3">
+                        por @noticiaDestaque.Artista?.Nome_Artista / @noticiaDestaque.Data_Publicacao.ToString("dd MMM yyyy")
+                    </p>
+                    <a href="/Noticia/Details/@noticiaDestaque.Id" class="btn btn-dark btn-sm w-auto">Ler mais →</a>
+                </div>
+
+                <!-- IMAGEM -->
+                <div class="col-md-5">
+                    @if (!string.IsNullOrEmpty(noticiaDestaque.Artista?.Foto))
+                    {
+                        <img src="/uploads/@noticiaDestaque.Artista.Foto"
+                             alt="Foto do Artista"
+                             class="img-fluid w-100 h-100"
+                             style="object-fit: cover; object-position: center; max-height: 280px;">
+                    }
+                    else
+                    {
+                        <div class="bg-secondary text-white d-flex justify-content-center align-items-center h-100" style="min-height: 280px;">
+                            <span>Sem imagem</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- OUTRAS NOTÍCIAS -->
+            <div class="row gx-4 gy-4">
+                @foreach (var noticia in outrasNoticias)
+                {
+                    <div class="col-md-4 d-flex">
+                        <div class="card border-0 shadow-sm w-100">
+                            @if (!string.IsNullOrEmpty(noticia.Artista?.Foto))
+                            {
+                                <img src="/uploads/@noticia.Artista.Foto" alt="Foto do Artista" class="card-img-top" style="height: 180px; object-fit: cover;">
+                            }
+
+                            <div class="card-body d-flex flex-column">
+                                <small class="text-uppercase text-muted fw-bold mb-1">Notícia</small>
+                                <h6 class="fw-semibold">@noticia.Titulo</h6>
+                                <p class="card-text text-muted small flex-grow-1">
+                                    @noticia.Conteudo?.Substring(0, Math.Min(100, noticia.Conteudo.Length))...
+                                </p>
+                                <a href="/Noticia/Details/@noticia.Id" class="stretched-link text-decoration-none fw-semibold mt-3 text-primary">Ler mais →</a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
+        }
     </section>
 
-    <!-- Top 10 Músicas da Semana -->
+    <!-- TOP 10 MÚSICAS DA SEMANA -->
     <section>
-        <h2>🎵 Top 10 Músicas da Semana</h2>
-        <ol class="list-group list-group-numbered">
+        <h2 class="fw-bold text-uppercase border-bottom pb-2 mb-4" style="font-size: 1.8rem;">
+            <i class="bi bi-music-note-beamed me-2"></i>Top 10 Músicas da Semana
+        </h2>
+
+        <div class="list-group shadow-sm">
             @foreach (var musica in ViewBag.TopMusicas)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>@musica.Titulo</strong> - @musica.Artista.Nome_Artista
+                <div class="list-group-item py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div class="me-3">
+                        <div class="fw-bold">@musica.Titulo</div>
+                        <div class="text-muted small">por @musica.Artista?.Nome_Artista</div>
                     </div>
+
                     <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="btn btn-sm btn-outline-secondary">
                         Ver
                     </a>
                 </li>
             }
-        </ol>
+        </div>
     </section>
 
 </div>

@@ -6,47 +6,47 @@
 
 <h2>@ViewData["Title"]</h2>
 
+
 @if (User.IsInRole("Admin"))
 {
-    <hr />
-    <form asp-action="Edit">
-        <input type="hidden" asp-for="Id" />
+   <hr />
 
-        <div class="form-group">
-            <label asp-for="Titulo" class="control-label"></label>
-            <input asp-for="Titulo" class="form-control" />
-            <span asp-validation-for="Titulo" class="text-danger"></span>
-        </div>
+<form asp-action="Edit" asp-controller="Noticia" method="post">
+    <input type="hidden" asp-for="Id" />
 
-        <div class="form-group">
-            <label asp-for="Conteudo" class="control-label"></label>
-            <textarea asp-for="Conteudo" class="form-control"></textarea>
-            <span asp-validation-for="Conteudo" class="text-danger"></span>
-        </div>
+    <div class="form-group">
+        <label asp-for="Titulo" class="control-label"></label>
+        <input asp-for="Titulo" class="form-control" />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
+    </div>
 
-        <div class="form-group">
-            <label asp-for="Data_Publicacao" class="control-label"></label>
-            <input asp-for="Data_Publicacao" class="form-control" type="date" />
-            <span asp-validation-for="Data_Publicacao" class="text-danger"></span>
-        </div>
+    <div class="form-group">
+        <label asp-for="Conteudo" class="control-label"></label>
+        <textarea asp-for="Conteudo" class="form-control"></textarea>
+        <span asp-validation-for="Conteudo" class="text-danger"></span>
+    </div>
 
-        <div class="form-group">
-            <label asp-for="Fonte" class="control-label"></label>
-            <input asp-for="Fonte" class="form-control" />
-            <span asp-validation-for="Fonte" class="text-danger"></span>
-        </div>
+    <div class="form-group">
+        <label asp-for="Data_Publicacao" class="control-label"></label>
+        <input asp-for="Data_Publicacao" class="form-control" type="date" />
+        <span asp-validation-for="Data_Publicacao" class="text-danger"></span>
+    </div>
 
-        <div class="form-group">
-            <label asp-for="ArtistaId" class="control-label"></label>
-            <select asp-for="ArtistaId" class="form-control" asp-items="@(ViewBag.ArtistaId ?? new SelectList(Enumerable.Empty<SelectListItem>()))"></select>
-            <span asp-validation-for="ArtistaId" class="text-danger"></span>
-        </div>
+    <div class="form-group">
+        <label asp-for="Fonte" class="control-label"></label>
+        <input asp-for="Fonte" class="form-control" />
+        <span asp-validation-for="Fonte" class="text-danger"></span>
+    </div>
 
-        <div class="form-group mt-3">
-            <input type="submit" value="Guardar Alterações" class="btn btn-primary" />
-            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-        </div>
-    </form>
+    <div class="form-group">
+        <label asp-for="ArtistaId" class="control-label">Artista</label>
+        <select asp-for="ArtistaId" class="form-control" asp-items="ViewBag.ArtistaId"></select>
+        <span asp-validation-for="ArtistaId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <input type="submit" value="Guardar Alterações" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
 }
 else
 {
