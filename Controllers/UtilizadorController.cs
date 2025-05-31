@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
@@ -6,6 +6,7 @@ using SequeMusic.Data;
 using SequeMusic.Models;
 using SequeMusic.ViewModels;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace SequeMusic.Controllers
 {
@@ -25,31 +26,22 @@ namespace SequeMusic.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
 
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginRequest model)
-
         {
-    
             if (ModelState.IsValid)
             {
                 try
                 {
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user == null)
-                    {
                         ModelState.AddModelError("Email", "Email não encontrado.");
-                    }
                     else if (!await _userManager.CheckPasswordAsync(user, model.Password))
-                    {
                         ModelState.AddModelError("Password", "Password incorreta.");
-                    }
                     else
                     {
                         var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
@@ -78,15 +70,66 @@ namespace SequeMusic.Controllers
                     return RedirectToAction("Error", "Home");
                 }
             }
+
             return View(model);
         }
 
         [AllowAnonymous]
-        [HttpGet]
-        public IActionResult Register()
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
-            return View("~/Views/Utilizadors/Register.cshtml");
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Utilizadors", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
         }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Erro de login externo: {remoteError}");
+                return RedirectToAction(nameof(Login));
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null) return RedirectToAction(nameof(Login));
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var nome = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            var utilizador = await _userManager.FindByEmailAsync(email);
+
+            if (utilizador == null)
+            {
+                utilizador = new Utilizador
+                {
+                    UserName = email,
+                    Email = email,
+                    Nome = nome,
+                    EmailConfirmed = true
+                };
+
+                var createResult = await _userManager.CreateAsync(utilizador);
+                if (!createResult.Succeeded)
+                {
+                    foreach (var error in createResult.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    return RedirectToAction(nameof(Login));
+                }
+
+                await _userManager.AddLoginAsync(utilizador, info);
+            }
+
+            await _signInManager.SignInAsync(utilizador, isPersistent: false);
+            return LocalRedirect(returnUrl);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Register() => View("~/Views/Utilizadors/Register.cshtml");
 
         [AllowAnonymous]
         [HttpPost]
@@ -104,24 +147,19 @@ namespace SequeMusic.Controllers
                     Telemovel = model.Telemovel,
                     EmailConfirmed = true
                 };
-             
+
                 var result = await _userManager.CreateAsync(user, model.Password);
 
-                if (result.Succeeded) {
-                    var createdUser = await _userManager.FindByEmailAsync(model.Email);
-                    Console.WriteLine($"UTILIZADOR CRIADO: {createdUser.Id} - {createdUser.Email}");
-
+                if (result.Succeeded)
+                {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                    }
-                }
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
             }
+
             return View(model);
         }
 
@@ -130,9 +168,7 @@ namespace SequeMusic.Controllers
             var userId = _userManager.GetUserId(User);
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || !user.IsAdmin)
-            {
                 return View("~/Views/Utilizadors/AccessDenied.cshtml");
-            }
 
             var users = await _userManager.Users.ToListAsync();
             return View(users);
@@ -146,55 +182,34 @@ namespace SequeMusic.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // GET: Utilizadors/Details/5
         public async Task<IActionResult> Details(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var utilizador = await _userManager.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizador == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
+            var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (utilizador == null) return NotFound();
             return View(utilizador);
         }
 
-        // GET: Utilizadors/Edit/5
-        
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null) return NotFound();
-
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-
-            if (id != userId && !isAdmin)
-                return Forbid();
+            if (id != userId && !isAdmin) return Forbid();
 
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (utilizador == null) return NotFound();
-
             return View(utilizador);
         }
 
-
-        // POST: Utilizadors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,Email,Telemovel,DataNascimento")] Utilizador utilizador)
         {
             if (id != utilizador.Id) return NotFound();
-
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-
-            if (id != userId && !isAdmin)
-                return Forbid();
+            if (id != userId && !isAdmin) return Forbid();
 
             if (ModelState.IsValid)
             {
@@ -214,7 +229,6 @@ namespace SequeMusic.Controllers
                     {
                         foreach (var error in result.Errors)
                             ModelState.AddModelError(string.Empty, error.Description);
-
                         return View(utilizador);
                     }
                 }
@@ -230,35 +244,25 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
-
-        // GET: Utilizadors/Delete/5
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null) return NotFound();
-
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-
-            if (id != userId && !isAdmin)
-                return Forbid();
+            if (id != userId && !isAdmin) return Forbid();
 
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (utilizador == null) return NotFound();
-
             return View(utilizador);
         }
 
-
-        // POST: Utilizadors/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-
-            if (id != userId && !isAdmin)
-                return Forbid();
+            if (id != userId && !isAdmin) return Forbid();
 
             var utilizador = await _userManager.FindByIdAsync(id);
             if (utilizador == null) return NotFound();
@@ -268,11 +272,9 @@ namespace SequeMusic.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
                 return View(utilizador);
             }
 
-            // Se o próprio utilizador apagou a conta, termina a sessão
             if (!isAdmin)
             {
                 await _signInManager.SignOutAsync();
@@ -282,9 +284,6 @@ namespace SequeMusic.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-        
-        
 
         private async Task<bool> UtilizadorExists(string id)
         {

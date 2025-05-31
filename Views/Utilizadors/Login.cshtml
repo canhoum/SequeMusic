@@ -4,28 +4,47 @@
     ViewData["Title"] = "Login";
 }
 
-<h2>Login</h2>
+<link rel="stylesheet" href="~/css/account.css" />
 
-<form asp-action="Login" method="post">
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+<div class="account-container">
+    <h2 class="text-center">Entrar</h2>
+
+    <!-- Login com Google (CORRIGIDO) -->
+    <form asp-action="ExternalLogin" asp-controller="Utilizadors" method="post" class="text-center mb-4">
+        <input type="hidden" name="provider" value="Google" />
+        <button type="submit" class="btn btn-google">
+            <i class="bi bi-google"></i> Entrar com Google
+        </button>
+    </form>
+
+    <!-- Login clássico -->
+    <form asp-action="Login" asp-controller="Utilizadors" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group form-check">
+            <input asp-for="RememberMe" class="form-check-input" />
+            <label asp-for="RememberMe" class="form-check-label">Lembrar-me</label>
+        </div>
+
+        <button type="submit" class="btn btn-success">Entrar</button>
+    </form>
+
+    <div class="text-center mt-3">
+        Ainda não tens conta? <a asp-action="Register" asp-controller="Utilizadors" class="text-info">Regista-te aqui</a>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" type="password" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group form-check">
-        <input asp-for="RememberMe" class="form-check-input" />
-        <label asp-for="RememberMe" class="form-check-label">Lembrar-me</label>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Entrar</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
