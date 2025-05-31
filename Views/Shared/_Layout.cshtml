@@ -109,6 +109,11 @@
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Noticia" asp-action="Index">Notícias</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Musicas" asp-action="Promover">
+                        Promover a minha música
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -117,6 +122,13 @@
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
+
+        @if (TempData["Mensagem"] != null)
+        {
+            <div class="alert alert-success text-center mt-4" role="alert">
+                @TempData["Mensagem"]
+            </div>
+        }
     </main>
 </div>
 

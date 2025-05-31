@@ -33,6 +33,8 @@ namespace SequeMusic.Models
 
         [NotMapped]
         public string DataNascFormatted => DataNascimento.ToString("dd/MM/yyyy");
+        
+        public bool IsPremium { get; set; } = false;
 
         // Relacionamento com Avaliações
         public virtual ICollection<Avaliacao> Avaliacoes { get; set; }

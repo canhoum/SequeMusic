@@ -3,13 +3,14 @@
 
 @{
     ViewData["Title"] = User.IsInRole("Admin") ? "Todas as Músicas" : "Top 10 Billboard";
+    var isPremium = User.FindFirst("IsPremium")?.Value == "True";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
 @if (User.IsInRole("Admin"))
 {
-    <div class="mb-3">
+    <div class="mb-4">
         <form method="get" class="row g-2">
             <div class="col-md-3">
                 <select name="generoFiltro" class="form-select" asp-items="ViewBag.Generos">
@@ -33,23 +34,29 @@
         </form>
     </div>
 }
+else if (User.Identity.IsAuthenticated && isPremium)
+{
+    <div class="text-end mb-4">
+        <a asp-action="Create" class="btn btn-success">+ Adicionar Música</a>
+    </div>
+}
 
-<table class="table table-striped">
+<table class="table table-striped table-hover align-middle">
     <thead class="table-dark">
-    <tr>
-        <th>Título</th>
-        <th>Álbum</th>
-        <th>Artista</th>
+        <tr>
+            <th>Título</th>
+            <th>Álbum</th>
+            <th>Artista</th>
 
-        @if (User.IsInRole("Admin"))
-        {
-            <th>Ano</th>
-            <th>Género</th>
-            <th>Posição</th>
-        }
+            @if (User.IsInRole("Admin"))
+            {
+                <th>Ano</th>
+                <th>Género</th>
+                <th>Posição</th>
+            }
 
-        <th></th>
-    </tr>
+            <th>Ações</th>
+        </tr>
     </thead>
     <tbody>
     @foreach (var item in Model)
@@ -74,20 +81,21 @@
             }
 
             <td>
-                <a asp-action="Details" asp-route-id="@item.ID" style="text-decoration: none; color: inherit;">
+                <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info me-1">
                     👁 Detalhes
                 </a>
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <span> | </span>
-                    <a asp-action="Edit" asp-route-id="@item.ID" style="text-decoration: none; color: inherit;">✏️ Editar</a>
-                    <span> | </span>
-                    <a asp-action="Delete" asp-route-id="@item.ID" style="text-decoration: none; color: inherit;">🗑️ Apagar</a>
+                    <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-warning me-1">
+                        ✏️ Editar
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger">
+                        🗑️ Apagar
+                    </a>
                 }
             </td>
         </tr>
     }
     </tbody>
 </table>
-
