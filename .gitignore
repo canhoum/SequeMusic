@@ -3,4 +3,4 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
-auth/google-credentials.json
+/auth/google-credentials.json
