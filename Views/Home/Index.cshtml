@@ -90,8 +90,11 @@
                         <div class="fw-bold">@musica.Titulo</div>
                         <div class="text-muted small">por @musica.Artista?.Nome_Artista</div>
                     </div>
-                    <a href="/Musica/Details/@musica.ID" class="btn btn-sm btn-outline-dark">Ver</a>
-                </div>
+
+                    <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="btn btn-sm btn-outline-secondary">
+                        Ver
+                    </a>
+                </li>
             }
         </div>
     </section>

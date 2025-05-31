@@ -1,0 +1,45 @@
+@model SequeMusic.Models.Utilizador
+
+@{
+    ViewData["Title"] = "Editar Perfil";
+}
+
+<h2 class="mb-4">Editar Perfil</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Nome"></label>
+        <input asp-for="Nome" class="form-control" />
+        <span asp-validation-for="Nome" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="DataNascimento"></label>
+        <input asp-for="DataNascimento" class="form-control" type="date" />
+        <span asp-validation-for="DataNascimento" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-4">
+        <label asp-for="Telemovel"></label>
+        <input asp-for="Telemovel" class="form-control" />
+        <span asp-validation-for="Telemovel" class="text-danger"></span>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">💾 Guardar Alterações</button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

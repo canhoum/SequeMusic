@@ -248,7 +248,6 @@ namespace SequeMusic.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Album")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("AnoDeLancamento")
@@ -261,7 +260,6 @@ namespace SequeMusic.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Letra")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LinkAudio")
@@ -271,6 +269,9 @@ namespace SequeMusic.Migrations
                     b.Property<string>("NomeFicheiroAudio")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PosicaoBillboard")
+                        .HasColumnType("int");
 
                     b.Property<string>("Titulo")
                         .IsRequired()

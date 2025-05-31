@@ -5,24 +5,35 @@
 }
 
 <div class="container py-4">
-    <div class="alert alert-danger border border-danger shadow-sm">
-        <h4 class="alert-heading">⚠️ Atenção!</h4>
-        <p class="mb-2">Está prestes a eliminar o artista <strong>@Model.Nome_Artista</strong>.</p>
-        <p>Esta ação é <strong>irreversível</strong> e poderá afetar as músicas e notícias associadas.</p>
-    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="alert alert-danger border border-danger shadow-sm">
+            <h4 class="alert-heading">⚠️ Atenção!</h4>
+            <p class="mb-2">Está prestes a eliminar o artista <strong>@Model.Nome_Artista</strong>.</p>
+            <p>Esta ação é <strong>irreversível</strong> e poderá afetar as músicas e notícias associadas.</p>
+        </div>
 
-    <div class="mb-4">
-        <h5 class="fw-semibold">Biografia</h5>
-        <p class="fst-italic">@Model.Biografia</p>
-    </div>
+        <div class="mb-4">
+            <h5 class="fw-semibold">Biografia</h5>
+            <p class="fst-italic">@Model.Biografia</p>
+        </div>
 
-    <form asp-action="DeleteConfirmed" method="post" class="d-flex flex-wrap gap-3">
-        <input type="hidden" asp-for="Id" />
-        <button type="submit" class="btn btn-danger">
-            🗑️ Eliminar Artista
-        </button>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            Cancelar
-        </a>
-    </form>
+        <form asp-action="DeleteConfirmed" method="post" class="d-flex flex-wrap gap-3">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">
+                🗑️ Eliminar Artista
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <h5 class="mb-2"><i class="fas fa-lock"></i> Acesso restrito</h5>
+            <p>Apenas administradores têm permissão para eliminar artistas.</p>
+            <a asp-action="Index" class="btn btn-outline-primary mt-2">← Voltar à lista</a>
+        </div>
+    }
 </div>
