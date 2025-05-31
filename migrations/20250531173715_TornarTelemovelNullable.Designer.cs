@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SequeMusic.Data;
 
@@ -11,9 +12,11 @@ using SequeMusic.Data;
 namespace SequeMusic.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250531173715_TornarTelemovelNullable")]
+    partial class TornarTelemovelNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -369,9 +372,6 @@ namespace SequeMusic.Migrations
                     b.Property<bool>("IsAdmin")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsPremium")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -404,6 +404,7 @@ namespace SequeMusic.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Telemovel")
+                        .IsRequired()
                         .HasMaxLength(9)
                         .HasColumnType("nvarchar(9)");
 
