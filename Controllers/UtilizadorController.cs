@@ -262,7 +262,9 @@ namespace SequeMusic.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-            if (id != userId && !isAdmin) return Forbid();
+
+            if (id != userId && !isAdmin)
+                return Forbid();
 
             var utilizador = await _userManager.FindByIdAsync(id);
             if (utilizador == null) return NotFound();
@@ -272,18 +274,23 @@ namespace SequeMusic.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-                return View(utilizador);
+
+                return View("Delete", utilizador);
             }
 
             if (!isAdmin)
             {
                 await _signInManager.SignOutAsync();
                 Response.Cookies.Delete("UserAuthCookie");
+
+                TempData["Mensagem"] = "A tua conta foi removida com sucesso.";
                 return RedirectToAction("Index", "Home");
             }
 
+            TempData["Mensagem"] = "Conta apagada com sucesso.";
             return RedirectToAction(nameof(Index));
         }
+
 
         private async Task<bool> UtilizadorExists(string id)
         {

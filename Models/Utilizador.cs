@@ -15,7 +15,7 @@ namespace SequeMusic.Models
         [Display(Name = "Telemóvel")]
         [StringLength(9)]
         [RegularExpression("9[1236][0-9]{7}", ErrorMessage = "O {0} só aceita 9 dígitos.")]
-        public string Telemovel { get; set; }
+        public string? Telemovel { get; set; }
 
         [Required(ErrorMessage = "A {0} é de preenchimento obrigatório.")]
         [Display(Name = "Data de Nascimento")]
