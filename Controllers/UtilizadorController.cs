@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization; 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using SequeMusic.Data;
 using SequeMusic.Models;
 using SequeMusic.ViewModels;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 
 namespace SequeMusic.Controllers
@@ -24,8 +24,6 @@ namespace SequeMusic.Controllers
             _signInManager = signInManager;
         }
 
-        // ---------------------- LOGIN ----------------------
-
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Login() => View();
@@ -35,46 +33,115 @@ namespace SequeMusic.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginRequest model)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+            if (ModelState.IsValid)
             {
-                ModelState.AddModelError("Email", "Email não encontrado.");
-                return View(model);
-            }
-
-            if (!await _userManager.CheckPasswordAsync(user, model.Password))
-            {
-                ModelState.AddModelError("Password", "Password incorreta.");
-                return View(model);
-            }
-
-            var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
-            if (result.Succeeded)
-            {
-                Global.LoggedUser = user;
-
-                if (model.RememberMe)
+                try
                 {
-                    var cookieOptions = new CookieOptions
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    if (user == null)
+                        ModelState.AddModelError("Email", "Email nÃ£o encontrado.");
+                    else if (!await _userManager.CheckPasswordAsync(user, model.Password))
+                        ModelState.AddModelError("Password", "Password incorreta.");
+                    else
                     {
-                        Expires = DateTime.Now.AddDays(30),
-                        Secure = true,
-                        HttpOnly = true,
-                        SameSite = SameSiteMode.Strict
-                    };
-                    Response.Cookies.Append("UserAuthCookie", user.Id, cookieOptions);
-                }
+                        var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
+                        if (result.Succeeded)
+                        {
+                            Global.LoggedUser = user;
 
-                return RedirectToAction("Index", "Home");
+                            if (model.RememberMe)
+                            {
+                                var cookieOptions = new CookieOptions
+                                {
+                                    Expires = DateTime.Now.AddDays(30),
+                                    Secure = true,
+                                    HttpOnly = true,
+                                    SameSite = SameSiteMode.Strict
+                                };
+                                Response.Cookies.Append("UserAuthCookie", user.Id, cookieOptions);
+                            }
+
+                            // Verifica se o utilizador tem dados em falta
+                            if (string.IsNullOrEmpty(user.Telemovel) || user.DataNascimento == default)
+                            {
+                                return RedirectToAction("CompletarPerfil", new { id = user.Id });
+                            }
+
+                            return RedirectToAction("Index", "Home");
+                        }
+
+                    }
+                }
+                catch
+                {
+                    return RedirectToAction("Error", "Home");
+                }
             }
 
-            ModelState.AddModelError(string.Empty, "Login inválido.");
             return View(model);
         }
 
-        // ---------------------- REGISTO ----------------------
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Utilizadors", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"Erro de login externo: {remoteError}");
+                return RedirectToAction(nameof(Login));
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null) return RedirectToAction(nameof(Login));
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var nome = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            var utilizador = await _userManager.FindByEmailAsync(email);
+
+            if (utilizador == null)
+            {
+                utilizador = new Utilizador
+                {
+                    UserName = email,
+                    Email = email,
+                    Nome = nome,
+                    EmailConfirmed = true
+                };
+
+                var createResult = await _userManager.CreateAsync(utilizador);
+                if (!createResult.Succeeded)
+                {
+                    foreach (var error in createResult.Errors)
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    return RedirectToAction(nameof(Login));
+                }
+
+                await _userManager.AddLoginAsync(utilizador, info);
+            }
+
+            await _signInManager.SignInAsync(utilizador, isPersistent: false);
+
+            // Verifica se o utilizador precisa de completar o perfil
+            if (utilizador.DataNascimento == default || string.IsNullOrWhiteSpace(utilizador.Telemovel))
+            {
+                return RedirectToAction("CompletarPerfil", new { id = utilizador.Id });
+            }
+
+
+            return LocalRedirect(returnUrl);
+
+        }
 
         [AllowAnonymous]
         [HttpGet]
@@ -85,33 +152,43 @@ namespace SequeMusic.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterRequest model)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            var user = new Utilizador
+            if (ModelState.IsValid)
             {
-                UserName = model.Email,
-                Email = model.Email,
-                Nome = model.Nome,
-                DataNascimento = model.DataNascimento,
-                Telemovel = model.Telemovel,
-                EmailConfirmed = true,
-                IsPremium = false
-            };
+                var user = new Utilizador
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    Nome = model.Nome,
+                    DataNascimento = model.DataNascimento,
+                    Telemovel = model.Telemovel,
+                    EmailConfirmed = true
+                };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            if (result.Succeeded)
-            {
-                await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("Index", "Home");
+                var result = await _userManager.CreateAsync(user, model.Password);
+
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
             }
-
-            foreach (var error in result.Errors)
-                ModelState.AddModelError(string.Empty, error.Description);
 
             return View(model);
         }
 
-        // ---------------------- LOGOUT ----------------------
+        public async Task<IActionResult> Index()
+        {
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || !user.IsAdmin)
+                return View("~/Views/Utilizadors/AccessDenied.cshtml");
+
+            var users = await _userManager.Users.ToListAsync();
+            return View(users);
+        }
 
         public async Task<IActionResult> Logout()
         {
@@ -121,31 +198,13 @@ namespace SequeMusic.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // ---------------------- LISTA DE UTILIZADORES ----------------------
-
-        public async Task<IActionResult> Index()
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null || !user.IsAdmin)
-                return View("~/Views/Utilizadors/AccessDenied.cshtml");
-
-            var users = await _userManager.Users.ToListAsync();
-            return View(users);
-        }
-
-        // ---------------------- DETALHES ----------------------
-
         public async Task<IActionResult> Details(string id)
         {
             if (id == null) return NotFound();
-
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (utilizador == null) return NotFound();
-
             return View(utilizador);
         }
-
-        // ---------------------- EDITAR PERFIL ----------------------
 
         public async Task<IActionResult> Edit(string id)
         {
@@ -156,7 +215,6 @@ namespace SequeMusic.Controllers
 
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (utilizador == null) return NotFound();
-
             return View(utilizador);
         }
 
@@ -169,29 +227,38 @@ namespace SequeMusic.Controllers
             var isAdmin = User.IsInRole("Admin");
             if (id != userId && !isAdmin) return Forbid();
 
-            if (!ModelState.IsValid) return View(utilizador);
-
-            var userToUpdate = await _userManager.FindByIdAsync(id);
-            if (userToUpdate == null) return NotFound();
-
-            userToUpdate.Nome = utilizador.Nome;
-            userToUpdate.Email = utilizador.Email;
-            userToUpdate.UserName = utilizador.Email;
-            userToUpdate.Telemovel = utilizador.Telemovel;
-            userToUpdate.DataNascimento = utilizador.DataNascimento;
-
-            var result = await _userManager.UpdateAsync(userToUpdate);
-            if (!result.Succeeded)
+            if (ModelState.IsValid)
             {
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
-                return View(utilizador);
+                try
+                {
+                    var userToUpdate = await _userManager.FindByIdAsync(id);
+                    if (userToUpdate == null) return NotFound();
+
+                    userToUpdate.Nome = utilizador.Nome;
+                    userToUpdate.Email = utilizador.Email;
+                    userToUpdate.UserName = utilizador.Email;
+                    userToUpdate.Telemovel = utilizador.Telemovel;
+                    userToUpdate.DataNascimento = utilizador.DataNascimento;
+
+                    var result = await _userManager.UpdateAsync(userToUpdate);
+                    if (!result.Succeeded)
+                    {
+                        foreach (var error in result.Errors)
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        return View(utilizador);
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await UtilizadorExists(utilizador.Id)) return NotFound();
+                    else throw;
+                }
+
+                return RedirectToAction("Details", new { id = id });
             }
 
-            return RedirectToAction("Details", new { id });
+            return View(utilizador);
         }
-
-        // ---------------------- APAGAR CONTA ----------------------
 
         public async Task<IActionResult> Delete(string id)
         {
@@ -202,7 +269,6 @@ namespace SequeMusic.Controllers
 
             var utilizador = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
             if (utilizador == null) return NotFound();
-
             return View(utilizador);
         }
 
@@ -212,7 +278,6 @@ namespace SequeMusic.Controllers
         {
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
-
             if (id != userId && !isAdmin) return Forbid();
 
             var utilizador = await _userManager.FindByIdAsync(id);
@@ -223,49 +288,59 @@ namespace SequeMusic.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-                return View("Delete", utilizador);
+                return View(utilizador);
             }
 
             if (!isAdmin)
             {
                 await _signInManager.SignOutAsync();
                 Response.Cookies.Delete("UserAuthCookie");
-                TempData["Mensagem"] = "A tua conta foi removida com sucesso.";
                 return RedirectToAction("Index", "Home");
             }
 
-            TempData["Mensagem"] = "Conta apagada com sucesso.";
             return RedirectToAction(nameof(Index));
         }
+// ---------------------- COMPLETAR PERFIL ----------------------
 
-        // ---------------------- UPGRADE PARA PREMIUM ----------------------
-
-        [Authorize]
-        public async Task<IActionResult> Upgrade()
+        [HttpGet]
+        public async Task<IActionResult> CompletarPerfil(string id)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user.IsPremium)
-                return RedirectToAction("Details", new { id = user.Id });
+            if (id == null) return NotFound();
 
-            return View();
+            var userId = _userManager.GetUserId(User);
+            if (id != userId) return Forbid();
+
+            var utilizador = await _userManager.FindByIdAsync(id);
+            if (utilizador == null) return NotFound();
+
+            return View(utilizador);
         }
 
         [HttpPost]
-        [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmUpgrade(string nome, string cartao, string validade, string cvc)
+        public async Task<IActionResult> CompletarPerfil(string id, [Bind("Telemovel,DataNascimento")] Utilizador dados)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
 
-            user.IsPremium = true;
-            await _userManager.UpdateAsync(user);
+            // Atualiza os dados
+            user.Telemovel = dados.Telemovel;
+            user.DataNascimento = dados.DataNascimento;
 
-            TempData["Mensagem"] = "Parabéns! A tua conta foi atualizada para Premium 🎉";
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View(dados); // Mostra novamente o formulário com erros
+            }
+
+            // Se tudo correu bem, redireciona para a página de detalhes
+            TempData["Mensagem"] = "Perfil atualizado com sucesso.";
             return RedirectToAction("Details", new { id = user.Id });
         }
 
-        // ---------------------- VERIFICAÇÃO ----------------------
 
         private async Task<bool> UtilizadorExists(string id)
         {
