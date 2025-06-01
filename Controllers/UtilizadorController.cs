@@ -300,6 +300,37 @@ namespace SequeMusic.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet]
+        public async Task<IActionResult> Upgrade()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            if (user.IsPremium)
+            {
+                TempData["Mensagem"] = "Já tens uma conta Premium!";
+                return RedirectToAction("Details", new { id = user.Id });
+            }
+
+            return View(); // Vai carregar a view Upgrade.cshtml
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmUpgrade(string nome, string cartao, string validade, string cvc)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
+            // Simulação: pagamento aceite
+            user.IsPremium = true;
+            await _userManager.UpdateAsync(user);
+
+            TempData["Mensagem"] = "Parabéns! A tua conta foi atualizada para Premium 🎉";
+            return RedirectToAction("Details", new { id = user.Id });
+        }
+
+
 // ---------------------- COMPLETAR PERFIL ----------------------
 
         [HttpGet]
