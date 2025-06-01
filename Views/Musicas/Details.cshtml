@@ -18,6 +18,43 @@
 
     <dt class="col-sm-2">Gênero</dt>
     <dd class="col-sm-10">@Model.Genero?.Nome</dd>
+ 
+    @if (Model.Streamings != null && Model.Streamings.Any())
+    {
+        <div class="mt-3">
+          <div class="d-flex flex-wrap gap-4 mt-2">
+                @foreach (var s in Model.Streamings)
+                {
+                    <div class="d-flex align-items-center bg-light px-3 py-2 rounded shadow-sm">
+                        <a href="@s.Link" target="_blank" class="d-flex align-items-center text-decoration-none text-dark">
+                            <img src="/icons/@(s.Plataforma.ToLower()).png" alt="@s.Plataforma"
+                                 width="30" height="30" class="me-2" style="object-fit: contain;" />
+                            <span class="me-2 fw-semibold">@FormatarStreams(s.NumeroDeStreams)</span>
+                        </a>
+                        
+
+                        @if (User.IsInRole("Admin") || (User.Identity.IsAuthenticated && User.IsInRole("Premium")))
+                        {
+                            <div class="ms-2 d-flex gap-1">
+                                <a asp-controller="Streaming" asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary">✏️</a>
+                                <a asp-controller="Streaming" asp-action="Delete" asp-route-id="@s.Id" class="btn btn-sm btn-outline-danger">🗑️</a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted mt-3">Ainda sem dados de streaming.</p>
+    }
+
+    @if (User.IsInRole("Admin") || (User.Identity.IsAuthenticated && User.IsInRole("Premium")))
+    {
+        <a asp-controller="Streaming" asp-action="Create" asp-route-musicaId="@Model.ID" class="btn btn-success mt-3">➕ Adicionar Streaming</a>
+    }
+
 </dl>
 
 @if (!string.IsNullOrWhiteSpace(Model.Letra))
@@ -144,4 +181,15 @@ else
         });
     </script>
 }
+@functions {
+    public string FormatarStreams(int numero)
+    {
+        if (numero >= 1_000_000)
+            return (numero / 1_000_000D).ToString("0.#") + "M";
+        if (numero >= 1_000)
+            return (numero / 1_000D).ToString("0.#") + "k";
+        return numero.ToString();
+    }
+}
+
 

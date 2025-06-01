@@ -1,0 +1,30 @@
+@model SequeMusic.Models.Utilizador
+
+@{
+    ViewData["Title"] = "Completar Perfil";
+}
+
+<h2>Completar Perfil</h2>
+
+<form asp-action="CompletarPerfil" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="Telemovel" class="control-label"></label>
+        <input asp-for="Telemovel" class="form-control" />
+        <span asp-validation-for="Telemovel" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DataNascimento" class="control-label"></label>
+        <input asp-for="DataNascimento" class="form-control" type="date" />
+        <span asp-validation-for="DataNascimento" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Guardar</button>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary mt-3">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

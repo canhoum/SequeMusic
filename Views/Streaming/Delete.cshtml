@@ -1,0 +1,23 @@
+@model SequeMusic.Models.Streaming
+
+@{
+    ViewData["Title"] = "Eliminar Streaming";
+}
+
+<h2 class="text-danger">Eliminar Streaming</h2>
+<p class="lead">Tem a certeza que pretende eliminar este registo?</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Plataforma</dt>
+    <dd class="col-sm-9">@Model.Plataforma</dd>
+
+    <dt class="col-sm-3">Número de Streams</dt>
+    <dd class="col-sm-9">@Model.NumeroDeStreams</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="MusicaId" />
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-controller="Musicas" asp-action="Details" asp-route-id="@Model.MusicaId" class="btn btn-secondary">Cancelar</a>
+</form>

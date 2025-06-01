@@ -1,0 +1,38 @@
+@model SequeMusic.Models.Streaming
+
+@{
+    ViewData["Title"] = "Adicionar Streaming";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create">
+    <input type="hidden" asp-for="MusicaId" />
+
+    <div class="form-group">
+        <label asp-for="Plataforma" class="control-label"></label>
+        <input asp-for="Plataforma" class="form-control" />
+        <span asp-validation-for="Plataforma" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NumeroDeStreams" class="control-label"></label>
+        <input asp-for="NumeroDeStreams" class="form-control" />
+        <span asp-validation-for="NumeroDeStreams" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Link" class="control-label">Link para a Plataforma</label>
+        <input asp-for="Link" class="form-control" />
+        <span asp-validation-for="Link" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mt-3">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a asp-controller="Musicas" asp-action="Details" asp-route-id="@Model.MusicaId" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
