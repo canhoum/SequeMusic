@@ -4,35 +4,94 @@
     ViewData["Title"] = "Lista de Notícias";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<p>
-    <a asp-action="Create" class="btn btn-success">Criar Nova Notícia</a>
-</p>
-
-<table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Título</th>
-        <th>Data</th>
-        <th>Fonte</th>
-        <th>Artista</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model) {
-        <tr>
-            <td>@item.Titulo</td>
-            <td>@item.Data_Publicacao.ToString("dd/MM/yyyy")</td>
-            <td>@item.Fonte</td>
-            <td>@item.Artista?.Nome_Artista</td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalhes</a>
-                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
-                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
-            </td>
-        </tr>
+<style>
+    .noticias-wrapper {
+        max-width: 90%;
+        margin: 40px auto;
     }
-    </tbody>
-</table>
+
+    .noticias-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .noticias-header h2 {
+        font-size: 28px;
+        font-weight: 600;
+    }
+
+    .table thead th {
+        background-color: #212529;
+        color: #fff;
+        border-color: #32383e;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+    }
+
+    .btn-sm {
+        padding: 5px 12px;
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+
+    .btn-info {
+        background-color: #0dcaf0;
+        border: none;
+        color: #000;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        border: none;
+        color: #000;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+        color: #fff;
+    }
+
+    .btn-success {
+        font-weight: 500;
+    }
+</style>
+
+<div class="noticias-wrapper">
+    <div class="noticias-header">
+        <h2>@ViewData["Title"]</h2>
+        <a asp-action="Create" class="btn btn-success">Criar Nova Notícia</a>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Título</th>
+            <th>Data</th>
+            <th>Fonte</th>
+            <th>Artista</th>
+            <th></th> <!-- ações -->
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Titulo</td>
+                <td>@item.Data_Publicacao.ToString("dd/MM/yyyy")</td>
+                <td>@item.Fonte</td>
+                <td>@item.Artista?.Nome_Artista</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalhes</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
