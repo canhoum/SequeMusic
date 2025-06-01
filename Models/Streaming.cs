@@ -10,6 +10,10 @@ namespace SequeMusic.Models
         public string Plataforma { get; set; }
 
         public int NumeroDeStreams { get; set; }
+        
+        [Url]
+        public string Link { get; set; }
+
 
         // FK para Musica
         public int MusicaId { get; set; }
