@@ -1,76 +1,90 @@
 @model SequeMusic.Models.Utilizador
 
 @{
-    ViewData["Title"] = "Detalhes do Utilizador";
+    ViewData["Title"] = "Perfil de " + Model.Nome;
 }
 
-<div class="container mt-4">
-    <div class="card shadow rounded">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Detalhes do Utilizador</h4>
-        </div>
-        <div class="card-body">
-            <dl class="row mb-0">
-                <dt class="col-sm-3">
-                    <i class="bi bi-person-fill"></i> Nome
-                </dt>
-                <dd class="col-sm-9">@Model.Nome</dd>
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-                <dt class="col-sm-3">
-                    <i class="bi bi-envelope-fill"></i> Email
-                </dt>
-                <dd class="col-sm-9">@Model.Email</dd>
-
-                <dt class="col-sm-3">
-                    <i class="bi bi-phone-fill"></i> Telemóvel
-                </dt>
-                <dd class="col-sm-9">@Model.Telemovel</dd>
-
-                <dt class="col-sm-3">
-                    <i class="bi bi-calendar-event-fill"></i> Data de Nascimento
-                </dt>
-                <dd class="col-sm-9">@Model.DataNascFormatted</dd>
-
-                @if (Model.IsAdmin)
-                {
-                    <dt class="col-sm-3">
-                        <i class="bi bi-shield-lock-fill"></i> Administrador
-                    </dt>
-                    <dd class="col-sm-9">Sim</dd>
-                }
-            </dl>
+        <!-- Header do perfil -->
+        <div class="bg-dark text-white py-4 px-5 border-bottom">
+            <h3 class="mb-0">
+                <i class="bi bi-person-circle me-2"></i> @Model.Nome
+            </h3>
+            <small class="text-muted">Perfil do Utilizador</small>
         </div>
 
-        <div class="card-footer text-end d-flex flex-wrap justify-content-between align-items-center">
-            <div class="mb-2 mb-md-0">
-                @if (User.Identity.IsAuthenticated &&
-                     (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Id || User.IsInRole("Admin")))
-                {
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning me-2">
-                        <i class="bi bi-pencil-square"></i> Editar Perfil
-                    </a>
-                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger me-2">
-                        <i class="bi bi-trash-fill"></i> Apagar Conta
-                    </a>
-                }
+        <!-- Detalhes -->
+        <div class="card-body bg-white p-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="border-start ps-3">
+                        <h6 class="text-muted"><i class="bi bi-envelope-fill me-1"></i> Email</h6>
+                        <p class="fs-5">@Model.Email</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="border-start ps-3">
+                        <h6 class="text-muted"><i class="bi bi-phone-fill me-1"></i> Telemóvel</h6>
+                        <p class="fs-5">@Model.Telemovel</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="border-start ps-3">
+                        <h6 class="text-muted"><i class="bi bi-calendar3 me-1"></i> Data de Nascimento</h6>
+                        <p class="fs-5">@Model.DataNascFormatted</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="border-start ps-3">
+                        <h6 class="text-muted"><i class="bi bi-person-badge-fill me-1"></i> Tipo de Conta</h6>
+                        <p class="fs-5">
+                            @if (Model.IsAdmin)
+                            {
+                                <span class="badge bg-danger">Administrador</span>
+                            }
+                            else if (Model.IsPremium)
+                            {
+                                <span class="badge bg-warning text-dark">Premium</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Normal</span>
+                            }
+                        </p>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div>
-                <a asp-controller="Avaliacao" asp-action="Utilizador" class="btn btn-info me-2">
-                    <i class="bi bi-chat-dots-fill"></i> Ver Minhas Avaliações
+        <!-- Botões -->
+        <div class="card-footer bg-light d-flex flex-wrap justify-content-between align-items-center px-4 py-3">
+            <div class="mb-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-pencil"></i> Editar Perfil
                 </a>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left-circle"></i> Voltar à Lista
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Apagar Conta
                 </a>
             </div>
-            
-            @if (!Model.IsPremium)
-            {
-                <a asp-action="Upgrade" class="btn btn-warning mt-3">
-                    ⭐ Torna-te Premium
+            <div class="mb-2">
+                <a asp-controller="Avaliacao" asp-action="Utilizador" class="btn btn-outline-info me-2">
+                    <i class="bi bi-chat-dots"></i> Minhas Avaliações
                 </a>
-            }
-
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Voltar
+                </a>
+            </div>
         </div>
+
+        @if (!Model.IsPremium)
+        {
+            <div class="text-center bg-white border-top py-4">
+                <a asp-action="Upgrade" class="btn btn-warning btn-lg shadow">
+                    ⭐ Torna-te Premium e promove as tuas músicas!
+                </a>
+            </div>
+        }
     </div>
 </div>
