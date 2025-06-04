@@ -6,6 +6,7 @@ using SequeMusic.Data;
 using SequeMusic.Models;
 using System.Text.Json;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // --------------------
@@ -96,10 +97,17 @@ builder.Services.AddCors(options =>
 });
 
 // --------------------
-// MVC + Razor Pages
+// MVC + Razor Pages + API
 // --------------------
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    options.JsonSerializerOptions.WriteIndented = true;
+});
 builder.Services.AddRazorPages();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -108,8 +116,8 @@ var app = builder.Build();
 // --------------------
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // ** Comentar esta linha para evitar redirecionamento obrigatório para HTTPS **
@@ -120,6 +128,9 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseCors("AllowAll");
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -133,4 +144,5 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+app.MapControllers();
 app.Run();
