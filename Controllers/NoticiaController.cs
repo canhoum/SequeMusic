@@ -51,7 +51,7 @@ namespace SequeMusic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
+        public async Task<IActionResult> Create([Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,Resumo,ImagemUrl,ArtistaId")] Noticia noticia)
         {
             ModelState.Remove("Artista");
             if (ModelState.IsValid)
@@ -82,7 +82,7 @@ namespace SequeMusic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,ArtistaId")] Noticia noticia)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,Resumo,ImagemUrl,ArtistaId")] Noticia noticia)
         {
             if (id != noticia.Id) return NotFound();
             ModelState.Remove("Artista");

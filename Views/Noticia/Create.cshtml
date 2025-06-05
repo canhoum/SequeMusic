@@ -16,8 +16,20 @@
         </div>
 
         <div class="form-group">
+            <label asp-for="Resumo" class="control-label"></label>
+            <textarea asp-for="Resumo" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Resumo" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="ImagemUrl" class="control-label"></label>
+            <input asp-for="ImagemUrl" class="form-control" />
+            <span asp-validation-for="ImagemUrl" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
             <label asp-for="Conteudo" class="control-label"></label>
-            <textarea asp-for="Conteudo" class="form-control"></textarea>
+            <textarea asp-for="Conteudo" class="form-control" rows="6"></textarea>
             <span asp-validation-for="Conteudo" class="text-danger"></span>
         </div>
 

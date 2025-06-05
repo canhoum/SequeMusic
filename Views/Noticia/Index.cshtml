@@ -1,97 +1,133 @@
 @model IEnumerable<SequeMusic.Models.Noticia>
 
 @{
-    ViewData["Title"] = "Lista de Notícias";
+    ViewData["Title"] = "Últimas Notícias";
 }
 
 <style>
-    .noticias-wrapper {
-        max-width: 90%;
+    .noticias-container {
+        max-width: 1200px;
         margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', sans-serif;
+        color: #f8f9fa;
     }
 
     .noticias-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
     }
 
     .noticias-header h2 {
-        font-size: 28px;
-        font-weight: 600;
+        font-size: 36px;
+        font-weight: bold;
+        color: white;
     }
 
-    .table thead th {
-        background-color: #212529;
-        color: #fff;
-        border-color: #32383e;
-    }
-
-    .table tbody td {
-        vertical-align: middle;
-    }
-
-    .btn-sm {
-        padding: 5px 12px;
-        font-size: 0.875rem;
+    .btn-criar {
+        background-color: #198754;
+        color: white;
+        padding: 10px 16px;
         border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
     }
 
-    .btn-info {
-        background-color: #0dcaf0;
-        border: none;
-        color: #000;
+    .noticias-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
     }
 
-    .btn-warning {
-        background-color: #ffc107;
-        border: none;
-        color: #000;
+    .noticia-card {
+        background-color: #1c1c1c;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
     }
 
-    .btn-danger {
-        background-color: #dc3545;
-        border: none;
-        color: #fff;
+    .noticia-imagem {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
     }
 
-    .btn-success {
-        font-weight: 500;
+    .noticia-conteudo {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
+
+    .noticia-titulo {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .noticia-meta {
+        font-size: 14px;
+        color: #aaa;
+        margin-bottom: 10px;
+    }
+
+    .noticia-resumo {
+        flex-grow: 1;
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+
+    .noticia-botoes a {
+        margin-right: 10px;
+        font-size: 13px;
+        padding: 6px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-detalhes { background-color: #0dcaf0; color: #000; }
+    .btn-editar   { background-color: #ffc107; color: #000; }
+    .btn-apagar   { background-color: #dc3545; color: #fff; }
 </style>
 
-<div class="noticias-wrapper">
+<div class="noticias-container">
     <div class="noticias-header">
         <h2>@ViewData["Title"]</h2>
-        <a asp-action="Create" class="btn btn-success">Criar Nova Notícia</a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn-criar">Criar Nova Notícia</a>
+        }
     </div>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Título</th>
-            <th>Data</th>
-            <th>Fonte</th>
-            <th>Artista</th>
-            <th></th> <!-- ações -->
-        </tr>
-        </thead>
-        <tbody>
+    <div class="noticias-grid">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@item.Titulo</td>
-                <td>@item.Data_Publicacao.ToString("dd/MM/yyyy")</td>
-                <td>@item.Fonte</td>
-                <td>@item.Artista?.Nome_Artista</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalhes</a>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
+            <div class="noticia-card">
+                <img src="@item.ImagemUrl" alt="Imagem da notícia" class="noticia-imagem" />
+
+                <div class="noticia-conteudo">
+                    <div class="noticia-titulo">@item.Titulo</div>
+                    <div class="noticia-meta">
+                        📅 @item.Data_Publicacao.ToString("dd/MM/yyyy") • @item.Fonte • @item.Artista?.Nome_Artista
+                    </div>
+                    <div class="noticia-resumo">
+                        @item.Resumo
+                    </div>
+                    <div class="noticia-botoes">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-detalhes">Detalhes</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn-editar">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn-apagar">Eliminar</a>
+                        }
+                    </div>
+                </div>
+            </div>
         }
-        </tbody>
-    </table>
+    </div>
 </div>
