@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SequeMusic.ViewModels
 {
-    public class LoginRequest
+    public class LoginViewModel
     {
         [Required]
         [EmailAddress]

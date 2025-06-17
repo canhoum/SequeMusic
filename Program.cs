@@ -1,11 +1,14 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SequeMusic.Data;
 using SequeMusic.Models;
+using System.Text;
 using System.Text.Json;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,27 +49,37 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --------------------
-// Configurar Identity
+// Configurar Identity (inclui autenticação por cookies automaticamente)
 // --------------------
 builder.Services.AddIdentity<Utilizador, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
 // --------------------
-// Configurar autenticação com cookies e Google (sem handler externo)
+// JWT Settings
 // --------------------
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-})
-.AddCookie()
-.AddGoogle(googleOptions =>
-{
-    googleOptions.ClientId = googleClientId!;
-    googleOptions.ClientSecret = googleClientSecret!;
-    googleOptions.CallbackPath = "/signin-google";
-});
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "CHAVE_SUPER_SECRETA_DEV_2025_SEGURA_XYZ123";
+var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SequeMusicAPI";
+
+builder.Services.AddAuthentication()
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = googleClientId!;
+        googleOptions.ClientSecret = googleClientSecret!;
+        googleOptions.CallbackPath = "/signin-google";
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
 
 // --------------------
 // Configuração personalizada para cookies de autenticação
@@ -75,16 +88,28 @@ builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Utilizadors/Login";
     options.AccessDeniedPath = "/AccessDenied";
+    options.Cookie.Name = "SequeMusic.Cookie";
+    options.SlidingExpiration = true;
 
-    options.Events.OnRedirectToLogin = context =>
+    options.Events.OnSigningIn = context =>
     {
-        context.Response.StatusCode = 401;
+        Console.WriteLine("Cookie de autenticação está sendo assinado para: " + context.Principal.Identity.Name);
         return Task.CompletedTask;
+    };
+
+    options.Events.OnSignedIn = async context =>
+    {
+        var identity = (ClaimsIdentity)context.Principal.Identity;
+        if (!identity.HasClaim(c => c.Type == ClaimTypes.Name))
+        {
+            identity.AddClaim(new Claim(ClaimTypes.Name, context.Principal.Identity.Name));
+        }
+        await Task.CompletedTask;
     };
 });
 
 // --------------------
-// Configurar CORS (permitir todos os pedidos para desenvolvimento)
+// Configurar CORS
 // --------------------
 builder.Services.AddCors(options =>
 {
@@ -111,38 +136,32 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// --------------------
-// Pipeline HTTP
-// --------------------
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SequeMusic API v1");
+        options.RoutePrefix = "swagger";
+    });
 }
 
-// ** Comentar esta linha para evitar redirecionamento obrigatório para HTTPS **
-// app.UseHttpsRedirection();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.CriarUtilizadorAdmin(services);
+}
 
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseCors("AllowAll");
-
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-// --------------------
-// Rotas MVC e Razor Pages
-// --------------------
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
-
 app.MapControllers();
 app.Run();

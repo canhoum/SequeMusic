@@ -5,6 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using SequeMusic.Data;
 using SequeMusic.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 namespace SequeMusic.Controllers
 {
@@ -35,12 +41,14 @@ namespace SequeMusic.Controllers
             return Ok(await query.ToListAsync());
         }
 
+        
+        
         [HttpGet("{id}")]
         public async Task<IActionResult> Musica(int id) =>
             Ok(await _context.Musicas.Include(m => m.Artista).Include(m => m.Genero).FirstOrDefaultAsync(m => m.ID == id));
 
         [HttpPost]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CriarMusica([FromBody] Musica musica)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -53,7 +61,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> AtualizarMusica(int id, [FromBody] Musica musica)
         {
             if (id != musica.ID) return BadRequest();
@@ -63,7 +71,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ApagarMusica(int id)
         {
             var musica = await _context.Musicas.FindAsync(id);
@@ -80,7 +88,7 @@ namespace SequeMusic.Controllers
             Ok(await _context.Artistas.Include(a => a.Musicas).Include(a => a.Noticias).FirstOrDefaultAsync(a => a.Id == id));
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CriarArtista([FromBody] Artista artista)
         {
             _context.Artistas.Add(artista);
@@ -89,7 +97,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> AtualizarArtista(int id, [FromBody] Artista artista)
         {
             if (id != artista.Id) return BadRequest();
@@ -99,7 +107,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ApagarArtista(int id)
         {
             var artista = await _context.Artistas.FindAsync(id);
@@ -113,7 +121,7 @@ namespace SequeMusic.Controllers
         [HttpGet] public async Task<IActionResult> Noticias() => Ok(await _context.Noticias.Include(n => n.Artista).ToListAsync());
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CriarNoticia([FromBody] Noticia noticia)
         {
             _context.Noticias.Add(noticia);
@@ -122,7 +130,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> AtualizarNoticia(int id, [FromBody] Noticia noticia)
         {
             if (id != noticia.Id) return BadRequest();
@@ -132,7 +140,7 @@ namespace SequeMusic.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> ApagarNoticia(int id)
         {
             var noticia = await _context.Noticias.FindAsync(id);
@@ -156,7 +164,7 @@ namespace SequeMusic.Controllers
             Ok(await _context.Avaliacoes.Include(a => a.Utilizador).Where(a => a.MusicaId == musicaId).ToListAsync());
 
         [HttpGet]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> MinhasAvaliacoes()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -164,5 +172,47 @@ namespace SequeMusic.Controllers
             var avaliacoes = await _context.Avaliacoes.Include(a => a.Musica).Where(a => a.UtilizadorId == user.Id).ToListAsync();
             return Ok(avaliacoes);
         }
+        
+        [HttpPost]
+        [Route("/api/v1/API/LoginAPI")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] LoginApiRequest model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
+                return Unauthorized();
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("CHAVE_SUPER_SECRETA_DEV_2025_SEGURA_XYZ123"));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "SequeMusicAPI",
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds);
+
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+        }
+
+        
+        [HttpPost]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CriarGenero([FromBody] Genero genero)
+        {
+            _context.Generos.Add(genero);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(Generos), new { id = genero.Id }, genero);
+        }
+
     }
+    
+    
+
 }
