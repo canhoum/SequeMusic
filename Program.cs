@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SequeMusic.Data;
 using SequeMusic.Models;
 using System.Text;
@@ -12,16 +13,13 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --------------------
-// Carregar credenciais Google OAuth do ficheiro JSON
-// --------------------
+// --- Google OAuth ---
 string? googleClientId = null;
 string? googleClientSecret = null;
 
 try
 {
     var googleJsonPath = Path.Combine(Directory.GetCurrentDirectory(), "auth", "google-credentials.json");
-
     if (!File.Exists(googleJsonPath))
         throw new FileNotFoundException("Ficheiro de credenciais Google não encontrado.", googleJsonPath);
 
@@ -42,22 +40,16 @@ catch (Exception ex)
     Environment.Exit(1);
 }
 
-// --------------------
-// Configurar a Base de Dados
-// --------------------
+// --- Base de Dados ---
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// --------------------
-// Configurar Identity (inclui autenticação por cookies automaticamente)
-// --------------------
+// --- Identity ---
 builder.Services.AddIdentity<Utilizador, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// --------------------
-// JWT Settings
-// --------------------
+// --- JWT ---
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "CHAVE_SUPER_SECRETA_DEV_2025_SEGURA_XYZ123";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SequeMusicAPI";
 
@@ -81,9 +73,7 @@ builder.Services.AddAuthentication()
         };
     });
 
-// --------------------
-// Configuração personalizada para cookies de autenticação
-// --------------------
+// --- Cookies (usado pelo Identity) ---
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Utilizadors/Login";
@@ -108,9 +98,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-// --------------------
-// Configurar CORS
-// --------------------
+// --- CORS ---
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -121,21 +109,51 @@ builder.Services.AddCors(options =>
     });
 });
 
-// --------------------
-// MVC + Razor Pages + API
-// --------------------
+// --- MVC, Razor, Swagger ---
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-    options.JsonSerializerOptions.WriteIndented = true;
-});
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
+
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "SequeMusic API", Version = "v1" });
+
+    // Configuração de segurança JWT
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "Insere o token JWT assim: Bearer {teu_token}",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 var app = builder.Build();
 
+// --- Dev Swagger ---
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -146,6 +164,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// --- Seed ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

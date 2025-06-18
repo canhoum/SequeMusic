@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SequeMusic.Models;
@@ -24,15 +25,18 @@ public class Musica
     
     public int? PosicaoBillboard { get; set; } 
     
-    
-
-
     // Relação N:1 com Artista
+    
     public int ArtistaId { get; set; }
+    [JsonIgnore]
+    [ValidateNever]
     public virtual Artista Artista { get; set; }
 
     // Relação N:1 com Genero
+    
     public int GeneroId { get; set; }
+    [JsonIgnore]
+    [ValidateNever]
     public virtual Genero Genero { get; set; }
 
     // Relação 1:N com Avaliacao

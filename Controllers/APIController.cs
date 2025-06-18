@@ -41,8 +41,6 @@ namespace SequeMusic.Controllers
             return Ok(await query.ToListAsync());
         }
 
-        
-        
         [HttpGet("{id}")]
         public async Task<IActionResult> Musica(int id) =>
             Ok(await _context.Musicas.Include(m => m.Artista).Include(m => m.Genero).FirstOrDefaultAsync(m => m.ID == id));
@@ -153,6 +151,31 @@ namespace SequeMusic.Controllers
         // --- GENEROS ---
         [HttpGet] public async Task<IActionResult> Generos() => Ok(await _context.Generos.ToListAsync());
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Genero(int id) =>
+            Ok(await _context.Generos.FindAsync(id));
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> AtualizarGenero(int id, [FromBody] Genero genero)
+        {
+            if (id != genero.Id) return BadRequest();
+            _context.Entry(genero).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> ApagarGenero(int id)
+        {
+            var genero = await _context.Generos.FindAsync(id);
+            if (genero == null) return NotFound();
+            _context.Generos.Remove(genero);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         // --- STREAMINGS ---
         [HttpGet("{musicaId}")]
         public async Task<IActionResult> StreamingsPorMusica(int musicaId) =>
@@ -172,7 +195,7 @@ namespace SequeMusic.Controllers
             var avaliacoes = await _context.Avaliacoes.Include(a => a.Musica).Where(a => a.UtilizadorId == user.Id).ToListAsync();
             return Ok(avaliacoes);
         }
-        
+
         [HttpPost]
         [Route("/api/v1/API/LoginAPI")]
         [AllowAnonymous]
@@ -201,7 +224,6 @@ namespace SequeMusic.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
 
-        
         [HttpPost]
         [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CriarGenero([FromBody] Genero genero)
@@ -210,9 +232,5 @@ namespace SequeMusic.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Generos), new { id = genero.Id }, genero);
         }
-
     }
-    
-    
-
 }
