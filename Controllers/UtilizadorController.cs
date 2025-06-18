@@ -7,6 +7,8 @@ using SequeMusic.Models;
 using SequeMusic.ViewModels;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SequeMusic.Controllers
 {
@@ -31,7 +33,8 @@ namespace SequeMusic.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginRequest model)
+        public async Task<IActionResult> Login(LoginViewModel model)
+        
         {
             if (ModelState.IsValid)
             {
@@ -44,6 +47,7 @@ namespace SequeMusic.Controllers
                         ModelState.AddModelError("Password", "Password incorreta.");
                     else
                     {
+                        
                         var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
                         if (result.Succeeded)
                         {
@@ -66,8 +70,13 @@ namespace SequeMusic.Controllers
                             {
                                 return RedirectToAction("CompletarPerfil", new { id = user.Id });
                             }
+                            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+                            identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                            identity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
 
-                            return RedirectToAction("Index", "Home");
+                            var principal = new ClaimsPrincipal(identity);
+                            await _signInManager.SignInAsync(user,model.RememberMe);
+                           return RedirectToAction("Index", "Home");
                         }
 
                     }

@@ -78,12 +78,7 @@ else
     <p><i>Sem ficheiro de áudio disponível.</i></p>
 }
 
-<h4>Streamings</h4>
-<ul>
-    @foreach (var s in Model.Streamings) {
-        <li>@s.Plataforma: @s.NumeroDeStreams visualizações</li>
-    }
-</ul>
+
 
 <h4>Comentários</h4>
 @if (Model.Avaliacoes?.Any() == true)
@@ -141,7 +136,7 @@ else
         </div>
 
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-success">
             <i class="bi bi-send"></i> Submeter Comentário
         </button>
     </form>
@@ -154,8 +149,7 @@ else
 }
 
 <p class="mt-4">
-    <a asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
-    <a asp-action="Index">Voltar à Lista</a>
+    <a asp-action="Index"  class="btn btn-success">← Voltar</a>
 </p>
 
 @section Scripts {
