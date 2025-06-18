@@ -12,6 +12,9 @@
 
 
     <style>
+        .bg-creme {
+            background-color: #fffaf0 !important;
+        }
         .nav-secondary {
             background-color: #111;
             font-weight: bold;
@@ -40,7 +43,7 @@
         }
     </style>
 </head>
-<body>
+<body class="bg-creme">
 <header>
     <!-- Navbar principal -->
     <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
@@ -119,7 +122,7 @@
     </nav>
 </header>
 
-<div class="container">
+<div class="container bg-transparent">
     <main role="main" class="pb-3">
         @RenderBody()
 
@@ -131,6 +134,7 @@
         }
     </main>
 </div>
+
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
