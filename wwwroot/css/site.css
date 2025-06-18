@@ -12,14 +12,11 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
+html, body {
+  height: 100%;
+  margin: 0;
 }
 
-body {
-  margin-bottom: 60px;
-}
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
@@ -59,12 +56,7 @@ body {
   background-color: #f8f9fa;
 }
 
-.dropdown-menu {
-  max-height: 300px;
-  overflow-y: auto;
-  background-color: #222;
-  color: white;
-}
+
 .dropdown-item {
   color: white;
 }
@@ -72,5 +64,21 @@ body {
   background-color: #1ED760;
   color: black;
 }
+
+#sugestoes.dropdown-menu {
+  background-color: #fffaf0; /* fundo igual ao da app */
+  color: #000; /* cor do texto */
+  border: 1px solid #ccc;
+}
+
+#sugestoes .dropdown-item {
+  color: #000;
+}
+
+#sugestoes .dropdown-item:hover {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
 
 

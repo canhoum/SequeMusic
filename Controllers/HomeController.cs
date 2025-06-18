@@ -74,13 +74,13 @@ namespace SequeMusic.Controllers
                 return Json(new { artistas = new List<object>(), musicas = new List<object>() });
 
             var artistas = await _context.Artistas
-                .Where(a => a.Nome_Artista.Contains(termo))
+                .Where(a => a.Nome_Artista.ToLower().Contains(termo.ToLower()))
                 .Select(a => new { tipo = "artista", id = a.Id, nome = a.Nome_Artista })
                 .ToListAsync();
 
             var musicas = await _context.Musicas
                 .Include(m => m.Artista)
-                .Where(m => m.Titulo.Contains(termo))
+                .Where(m => m.Titulo.ToLower().Contains(termo.ToLower()))
                 .Select(m => new {
                     tipo = "musica",
                     id = m.ID,
@@ -90,6 +90,12 @@ namespace SequeMusic.Controllers
 
             return Json(new { artistas, musicas });
         }
+
+        public IActionResult Creditos()
+        {
+            return View();
+        }
+
 
 
 

@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="~/SequeMusic.styles.css" asp-append-version="true"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
     <style>
         .bg-creme {
             background-color: #fffaf0 !important;
@@ -43,23 +42,22 @@
         }
     </style>
 </head>
-<body class="bg-creme">
+<body class="bg-creme d-flex flex-column min-vh-100">
+
 <header>
     <!-- Navbar principal -->
     <nav class="navbar navbar-expand-sm navbar-light bg-sequemusic mb-0 position-relative">
-
         <div class="container-fluid">
             <form class="d-flex me-3 position-relative" id="formPesquisa" asp-controller="Home" asp-action="Pesquisar" method="get">
-            <input class="form-control me-2" id="campoPesquisa" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar" autocomplete="off">
+                <input class="form-control me-2" id="campoPesquisa" type="search" name="query" placeholder="Pesquisar artistas ou músicas" aria-label="Pesquisar" autocomplete="off">
                 <button class="btn btn-outline-light" type="submit">🔍</button>
-
-                <div id="sugestoes" class="dropdown-menu show w-100 mt-1" style="display: none; position: absolute; top: 100%; z-index: 999;"></div>
+                <div id="sugestoes" class="dropdown-menu w-100 mt-1" style="position: absolute; top: 100%; z-index: 999; display: none;"></div>
             </form>
 
-            <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white text-uppercase fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+            <a class="navbar-brand position-absolute top-50 start-50 translate-middle text-white text-uppercase fw-bold"
+               asp-area="" asp-controller="Home" asp-action="Index">
                 SequeMusic
             </a>
-
 
             <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -96,120 +94,113 @@
         </div>
     </nav>
 
-    <!-- Navbar secundária estilizada -->
+    <!-- Navbar secundária -->
     <nav class="nav-secondary">
         <div class="container d-flex justify-content-center">
             <ul class="navbar-nav flex-row">
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Artistas" asp-action="Index">Artistas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Musicas" asp-action="Index">Músicas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Generos" asp-action="Index">Gêneros</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Noticia" asp-action="Index">Notícias</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" asp-controller="Musicas" asp-action="Promover">
-                        Promover a minha música
-                    </a>
-                </li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Artistas" asp-action="Index">Artistas</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Musicas" asp-action="Index">Músicas</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Generos" asp-action="Index">Gêneros</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Noticia" asp-action="Index">Notícias</a></li>
+                <li class="nav-item"><a class="nav-link" asp-controller="Musicas" asp-action="Promover">Promover a minha música</a></li>
             </ul>
         </div>
     </nav>
 </header>
 
-<div class="container bg-transparent">
-    <main role="main" class="pb-3">
-        @RenderBody()
+<main class="flex-grow-1 container bg-transparent py-4">
+    @RenderBody()
+    @if (TempData["Mensagem"] != null)
+    {
+        <div class="alert alert-success text-center mt-4" role="alert">
+            @TempData["Mensagem"]
+        </div>
+    }
+</main>
 
-        @if (TempData["Mensagem"] != null)
-        {
-            <div class="alert alert-success text-center mt-4" role="alert">
-                @TempData["Mensagem"]
-            </div>
-        }
-    </main>
-</div>
-
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+    <div class="container">
+        <p class="mb-1">© 2025 SequeMusic – Todos os direitos reservados.</p>
+        <a asp-controller="Home" asp-action="Creditos" class="text-light text-decoration-underline">
+            Ver créditos do projeto
+        </a>
+    </div>
+</footer>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 @await RenderSectionAsync("Scripts", required: false)
+
 <script>
     const toggleBtn = document.getElementById('toggleTheme');
-
-    function setTheme(isDark) {
-        document.body.classList.toggle('dark-mode', isDark);
-        localStorage.setItem('darkMode', isDark);
-        toggleBtn.textContent = isDark ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro';
+    if (toggleBtn) {
+        function setTheme(isDark) {
+            document.body.classList.toggle('dark-mode', isDark);
+            localStorage.setItem('darkMode', isDark);
+            toggleBtn.textContent = isDark ? 'Alternar para Modo Claro' : 'Alternar para Modo Escuro';
+        }
+        toggleBtn.addEventListener('click', () => {
+            const isDark = !document.body.classList.contains('dark-mode');
+            setTheme(isDark);
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('darkMode') === 'true';
+            setTheme(savedTheme);
+        });
     }
-
-    toggleBtn.addEventListener('click', () => {
-        const isDark = !document.body.classList.contains('dark-mode');
-        setTheme(isDark);
-    });
-
-    // Ao carregar a página, verifica o localStorage
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('darkMode') === 'true';
-        setTheme(savedTheme);
-    });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('campoPesquisa');
+        const dropdown = document.getElementById('sugestoes');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const input = document.getElementById('campoPesquisa');
-            const dropdown = document.getElementById('sugestoes');
+        input.addEventListener('input', function () {
+            const query = input.value.trim();
+            if (!query) {
+                dropdown.style.display = 'none';
+                dropdown.innerHTML = '';
+                return;
+            }
 
-            input.addEventListener('input', function () {
-                const query = input.value.trim();
-                if (!query) {
-                    dropdown.style.display = 'none';
+            fetch(`/Home/Sugestoes?termo=${encodeURIComponent(query)}`)
+                .then(res => res.ok ? res.json() : { artistas: [], musicas: [] })
+                .then(data => {
                     dropdown.innerHTML = '';
-                    return;
-                }
+                    let conteudo = '';
 
-                fetch(`/Home/Sugestoes?termo=${encodeURIComponent(query)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        dropdown.innerHTML = '';
-                        let conteudo = '';
+                    const artistas = data.artistas?.$values || [];
+                    const musicas = data.musicas?.$values || [];
 
-                        if (data.artistas.length) {
-                            conteudo += `<h6 class="dropdown-header">Artistas</h6>`;
-                            data.artistas.forEach(a => {
-                                conteudo += `<a class="dropdown-item" href="/Artistas/Details/${a.id}">${a.nome}</a>`;
-                            });
-                        }
+                    if (artistas.length) {
+                        conteudo += `<h6 class="dropdown-header">Artistas</h6>`;
+                        artistas.forEach(a => {
+                            conteudo += `<a class="dropdown-item" href="/Artistas/Details/${a.id}">${a.nome}</a>`;
+                        });
+                    }
 
-                        if (data.musicas.length) {
-                            conteudo += `<h6 class="dropdown-header">Músicas</h6>`;
-                            data.musicas.forEach(m => {
-                                conteudo += `<a class="dropdown-item" href="/Musicas/Details/${m.id}">${m.titulo} - <small>${m.artista}</small></a>`;
-                            });
-                        }
+                    if (musicas.length) {
+                        conteudo += `<h6 class="dropdown-header">Músicas</h6>`;
+                        musicas.forEach(m => {
+                            conteudo += `<a class="dropdown-item" href="/Musicas/Details/${m.id}">${m.titulo} - <small>${m.artista}</small></a>`;
+                        });
+                    }
 
-                        dropdown.innerHTML = conteudo || '<span class="dropdown-item disabled">Sem resultados</span>';
-                        dropdown.style.display = 'block';
-                    });
-            });
-
-            // Esconde dropdown ao clicar fora
-            document.addEventListener('click', function (e) {
-                if (!document.getElementById('formPesquisa').contains(e.target)) {
-                    dropdown.style.display = 'none';
-                }
-            });
+                    dropdown.innerHTML = conteudo || '<span class="dropdown-item disabled">Sem resultados</span>';
+                    dropdown.style.display = 'block';
+                })
+                .catch(err => {
+                    console.error("Erro na requisição de sugestões:", err);
+                });
         });
-    </script>
-}
 
-
+        document.addEventListener('click', function (e) {
+            if (!document.getElementById('formPesquisa').contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+</script>
 </body>
 </html>
