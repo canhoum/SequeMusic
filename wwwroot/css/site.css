@@ -1,36 +1,49 @@
+/* Define tamanho base do texto */
 html {
   font-size: 14px;
 }
 
+/* Aumenta o tamanho da fonte em ecrãs maiores */
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Estilos de foco para botões e campos de formulário */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+/* Garante que o corpo ocupa toda a altura da janela */
 html, body {
   height: 100%;
   margin: 0;
 }
 
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+/* Alinhamento de placeholders em inputs com floating label */
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+/* Quando o input tem foco, o placeholder alinha à esquerda */
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
 
+/* Cor de fundo personalizada para a aplicação */
 .bg-sequemusic {
-  background-color: #1DB954 ;
+  background-color: #1DB954;
 }
 
+/* Limita o número de linhas da biografia (4 linhas visíveis) */
 .biografia-limitada {
   overflow: hidden;
   display: -webkit-box;
@@ -39,46 +52,53 @@ html, body {
   transition: all 0.3s ease;
 }
 
+/* Biografia expandida mostra todas as linhas */
 .biografia-expandida {
   -webkit-line-clamp: unset;
 }
+
+/* Estilo para títulos de cartões */
 .card-title {
   font-size: 1.2rem;
   font-weight: bold;
 }
 
+/* Animação ao passar o rato por cima de um cartão */
 .card:hover {
   transform: scale(1.02);
   transition: transform 0.2s ease-in-out;
 }
 
+/* Destaque ao passar o rato por cima de um item de lista */
 .list-group-item:hover {
   background-color: #f8f9fa;
 }
 
-
+/* Cor do texto dos itens do dropdown */
 .dropdown-item {
   color: white;
 }
+
+/* Estilo ao passar o rato nos dropdowns */
 .dropdown-item:hover {
   background-color: #1ED760;
   color: black;
 }
 
+/* Estilo visual do menu de sugestões (autocomplete) */
 #sugestoes.dropdown-menu {
-  background-color: #fffaf0; /* fundo igual ao da app */
-  color: #000; /* cor do texto */
+  background-color: #fffaf0; /* tom semelhante ao fundo da app */
+  color: #000;
   border: 1px solid #ccc;
 }
 
+/* Cor do texto dos itens de sugestão */
 #sugestoes .dropdown-item {
   color: #000;
 }
 
+/* Destaque nos itens de sugestão ao passar o rato */
 #sugestoes .dropdown-item:hover {
   background-color: #f0f0f0;
   color: #000;
 }
-
-
-

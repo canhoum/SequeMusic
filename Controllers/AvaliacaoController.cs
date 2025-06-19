@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SequeMusic.Controllers
 {
-    [Authorize]
+    [Authorize] // Garante que apenas utilizadores autenticados podem aceder às ações deste controlador
     public class AvaliacaoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +22,7 @@ namespace SequeMusic.Controllers
             _userManager = userManager;
         }
 
-        // POST: Avaliacao/Create
+        // Cria uma nova avaliação submetida pelo utilizador autenticado
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MusicaId,Comentario,Nota")] Avaliacao avaliacao)
@@ -30,24 +30,25 @@ namespace SequeMusic.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
-            avaliacao.UtilizadorId = user.Id;
-            avaliacao.Data_Avaliacao = DateTime.Now;
+            avaliacao.UtilizadorId = user.Id; // Associa o ID do utilizador à avaliação
+            avaliacao.Data_Avaliacao = DateTime.Now; // Define a data atual
 
             _context.Avaliacoes.Add(avaliacao);
             await _context.SaveChangesAsync();
 
+            // Redireciona para a página de detalhes da música após avaliação
             return RedirectToAction("Details", "Musicas", new { id = avaliacao.MusicaId });
         }
 
-        // GET: Avaliacao/Utilizador
+        // Mostra todas as avaliações feitas pelo utilizador autenticado
         public async Task<IActionResult> Utilizador()
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
             var avaliacoes = await _context.Avaliacoes
-                .Include(a => a.Musica)
-                .Where(a => a.UtilizadorId == user.Id)
+                .Include(a => a.Musica) // Inclui dados da música associada
+                .Where(a => a.UtilizadorId == user.Id) // Filtra pelo utilizador atual
                 .ToListAsync();
 
             return View(avaliacoes);

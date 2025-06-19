@@ -1,3 +1,6 @@
+// Modelo que representa uma notícia associada a um artista
+// Inclui título, conteúdo, data, fonte, imagem, resumo e ligação ao artista
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -7,31 +10,33 @@ namespace SequeMusic.Models
 {
     public class Noticia
     {
-        public int Id { get; set; }
+        public int Id { get; set; } // Identificador único da notícia (chave primária)
 
         [Required]
-        public string Titulo { get; set; }
+        public string Titulo { get; set; } // Título da notícia (obrigatório)
 
-        public string Conteudo { get; set; } = "";
+        public string Conteudo { get; set; } = ""; // Texto completo da notícia
 
-        public DateTime Data_Publicacao { get; set; }
+        public DateTime Data_Publicacao { get; set; } // Data em que a notícia foi publicada
 
-        public string Fonte { get; set; } = "";
+        public string Fonte { get; set; } = ""; // Fonte da notícia (opcional)
 
-        // Campo para mostrar resumo/introdução
         [Display(Name = "Resumo")]
         [StringLength(300)]
-        public string Resumo { get; set; } = "";
+        public string Resumo { get; set; } = ""; 
+        // Resumo curto da notícia, útil para listagens (limitado a 300 caracteres)
 
-        // Campo para imagem de capa
         [Display(Name = "URL da Imagem")]
-        public string ImagemUrl { get; set; } = "";
+        public string ImagemUrl { get; set; } = ""; 
+        // URL para imagem de capa associada à notícia
 
         // FK para Artista
-        public int ArtistaId { get; set; }
-        
+        public int ArtistaId { get; set; } // Chave estrangeira que liga à entidade Artista
+
         [JsonIgnore]
         [ValidateNever]
-        public virtual Artista Artista { get; set; }
+        public virtual Artista Artista { get; set; } 
+        // Objeto de navegação para o artista relacionado
+        // Ignorado em validação de formulários e na serialização JSON (evita loops)
     }
 }

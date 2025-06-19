@@ -1,3 +1,6 @@
+// Controlador responsável pela navegação principal da aplicação SequeMusic
+// Gera a homepage, pesquisa, sugestões em tempo real, créditos, privacidade e página de erro
+
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SequeMusic.Data;
 using SequeMusic.Models;
-using SequeMusic.ViewModels; // <- Certifique-se que o ViewModel está neste namespace
+using SequeMusic.ViewModels;
 
 namespace SequeMusic.Controllers
 {
@@ -21,6 +24,8 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
+        // Página inicial da aplicação
+        // Mostra as 3 notícias mais recentes e as 10 músicas com mais streamings
         public IActionResult Index()
         {
             var noticias = _context.Noticias
@@ -31,7 +36,7 @@ namespace SequeMusic.Controllers
 
             var musicas = _context.Musicas
                 .Include(m => m.Artista)
-                .OrderByDescending(m => m.Streamings.Count) // ou .AcessosSemanais se existir
+                .OrderByDescending(m => m.Streamings.Count)
                 .Take(10)
                 .ToList();
 
@@ -41,12 +46,12 @@ namespace SequeMusic.Controllers
             return View();
         }
 
+        // Página de pesquisa global
+        // Procura por artistas e músicas com base no termo introduzido pelo utilizador
         public async Task<IActionResult> Pesquisar(string query)
         {
             if (string.IsNullOrWhiteSpace(query))
-            {
                 return View("Pesquisar", new PesquisaViewModel());
-            }
 
             var artistas = await _context.Artistas
                 .Where(a => a.Nome_Artista.Contains(query))
@@ -66,7 +71,9 @@ namespace SequeMusic.Controllers
 
             return View("Pesquisar", viewModel);
         }
-        
+
+        // Endpoint para sugestões automáticas (autocomplete via AJAX)
+        // Devolve artistas e músicas em formato JSON com base no termo
         [HttpGet]
         public async Task<IActionResult> Sugestoes(string termo)
         {
@@ -91,19 +98,19 @@ namespace SequeMusic.Controllers
             return Json(new { artistas, musicas });
         }
 
+        // Página estática com créditos da aplicação
         public IActionResult Creditos()
         {
             return View();
         }
 
-
-
-
+        // Página da política de privacidade
         public IActionResult Privacy()
         {
             return View();
         }
 
+        // Página de erro genérica (ex: 404, 500)
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

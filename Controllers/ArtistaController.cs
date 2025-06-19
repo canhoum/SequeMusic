@@ -1,3 +1,7 @@
+// Controlador MVC para gestão de artistas na aplicação
+// Permite listar, visualizar, criar, editar e apagar artistas
+// Algumas ações estão protegidas com [Authorize(Roles = "Admin")]
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -20,13 +24,13 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Artistas
+        // Lista todos os artistas existentes na base de dados
         public async Task<IActionResult> Index()
         {
             return View(await _context.Artistas.ToListAsync());
         }
 
-        // GET: Artistas/Details/5
+        // Mostra os detalhes de um artista, incluindo as músicas e notícias associadas
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -41,14 +45,14 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Create
+        // Mostra o formulário para criar um novo artista (acesso restrito a administradores)
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Artistas/Create
+        // Submete o novo artista preenchido no formulário (Admin)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -73,7 +77,7 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Edit/5
+        // Mostra o formulário de edição de um artista (Admin)
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -85,7 +89,7 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // POST: Artistas/Edit/5
+        // Submete as alterações feitas a um artista (Admin)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -120,21 +124,19 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Delete/5
+        // Mostra a confirmação antes de eliminar um artista (Admin)
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var artista = await _context.Artistas
-                .FirstOrDefaultAsync(a => a.Id == id);
-
+            var artista = await _context.Artistas.FirstOrDefaultAsync(a => a.Id == id);
             if (artista == null) return NotFound();
 
             return View(artista);
         }
 
-        // POST: Artistas/Delete/5
+        // Elimina definitivamente o artista da base de dados (Admin)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -146,7 +148,7 @@ namespace SequeMusic.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Método privado para guardar imagem
+        // Função auxiliar para guardar a imagem do artista (validação + gravação em wwwroot/uploads)
         private async Task<string> GuardarImagemAsync(IFormFile ficheiro)
         {
             if (ficheiro != null && ficheiro.Length > 0)

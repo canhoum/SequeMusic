@@ -1,3 +1,6 @@
+// Controlador MVC responsável pela gestão dos géneros musicais
+// Permite listar, visualizar, criar, editar e eliminar géneros
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SequeMusic.Data;
@@ -16,20 +19,20 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Generos
+        // Lista todos os géneros disponíveis
         public async Task<IActionResult> Index()
         {
             return View(await _context.Generos.ToListAsync());
         }
 
-        // GET: Generos/Details/5
+        // Mostra os detalhes de um género específico, incluindo as músicas associadas
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
                 return NotFound();
 
             var genero = await _context.Generos
-                .Include(g => g.Musicas)
+                .Include(g => g.Musicas) // Inclui músicas associadas
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (genero == null)
@@ -38,17 +41,15 @@ namespace SequeMusic.Controllers
             return View(genero);
         }
 
-        // GET: Generos/Create
-        
+        // Apresenta o formulário para criar um novo género
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Generos/Create
+        // Submete o novo género para a base de dados
         [HttpPost]
         [ValidateAntiForgeryToken]
-        
         public async Task<IActionResult> Create([Bind("Id,Nome,Descricao")] Genero genero)
         {
             if (ModelState.IsValid)
@@ -60,7 +61,7 @@ namespace SequeMusic.Controllers
             return View(genero);
         }
 
-        // GET: Generos/Edit/5
+        // Apresenta o formulário de edição de um género existente
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,7 +74,7 @@ namespace SequeMusic.Controllers
             return View(genero);
         }
 
-        // POST: Generos/Edit/5
+        // Submete a edição do género para a base de dados
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,Descricao")] Genero genero)
@@ -100,7 +101,7 @@ namespace SequeMusic.Controllers
             return View(genero);
         }
 
-        // GET: Generos/Delete/5
+        // Mostra a confirmação para apagar um género
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -114,7 +115,7 @@ namespace SequeMusic.Controllers
             return View(genero);
         }
 
-        // POST: Generos/Delete/5
+        // Confirma e executa a eliminação do género
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -125,6 +126,7 @@ namespace SequeMusic.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // Verifica se um género com o ID fornecido existe na base de dados
         private bool GeneroExists(int id)
         {
             return _context.Generos.Any(e => e.Id == id);
