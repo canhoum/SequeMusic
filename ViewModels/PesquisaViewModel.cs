@@ -1,17 +1,24 @@
-// ViewModel usado para apresentar os resultados de uma pesquisa
-// Armazena a query inserida pelo utilizador e listas de artistas e músicas encontradas
-
 using System.Collections.Generic;
 using SequeMusic.Models;
 
+/// <summary>
+/// ViewModel usado para apresentar os resultados de uma pesquisa.
+/// Armazena a query inserida pelo utilizador e listas de artistas e músicas encontrados.
+/// </summary>
 public class PesquisaViewModel
 {
-    public string Query { get; set; } 
-    // Texto de pesquisa introduzido pelo utilizador
+    /// <summary>
+    /// Termo de pesquisa inserido pelo utilizador.
+    /// </summary>
+    public string Query { get; set; }
 
-    public List<Artista> Artistas { get; set; } = new(); 
-    // Lista de artistas encontrados com base na pesquisa
+    /// <summary>
+    /// Lista de artistas que correspondem à pesquisa.
+    /// </summary>
+    public List<Artista> Artistas { get; set; } = new();
 
-    public List<Musica> Musicas { get; set; } = new(); 
-    // Lista de músicas encontradas com base na pesquisa
+    /// <summary>
+    /// Lista de músicas que correspondem à pesquisa.
+    /// </summary>
+    public List<Musica> Musicas { get; set; } = new();
 }

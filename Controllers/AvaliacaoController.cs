@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace SequeMusic.Controllers
 {
+    /// <summary>
+    /// Controlador responsável por gerir as avaliações feitas pelos utilizadores autenticados.
+    /// </summary>
     [Authorize] // Garante que apenas utilizadores autenticados podem aceder às ações deste controlador
     public class AvaliacaoController : Controller
     {
@@ -22,7 +25,11 @@ namespace SequeMusic.Controllers
             _userManager = userManager;
         }
 
-        // Cria uma nova avaliação submetida pelo utilizador autenticado
+        /// <summary>
+        /// Cria uma nova avaliação feita pelo utilizador autenticado.
+        /// </summary>
+        /// <param name="avaliacao">Objeto da avaliação com ID da música, comentário e nota.</param>
+        /// <returns>Redireciona para a página de detalhes da música avaliada ou retorna Unauthorized.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MusicaId,Comentario,Nota")] Avaliacao avaliacao)
@@ -36,11 +43,13 @@ namespace SequeMusic.Controllers
             _context.Avaliacoes.Add(avaliacao);
             await _context.SaveChangesAsync();
 
-            // Redireciona para a página de detalhes da música após avaliação
             return RedirectToAction("Details", "Musicas", new { id = avaliacao.MusicaId });
         }
 
-        // Mostra todas as avaliações feitas pelo utilizador autenticado
+        /// <summary>
+        /// Lista todas as avaliações feitas pelo utilizador autenticado.
+        /// </summary>
+        /// <returns>View com a lista de avaliações do utilizador.</returns>
         public async Task<IActionResult> Utilizador()
         {
             var user = await _userManager.GetUserAsync(User);

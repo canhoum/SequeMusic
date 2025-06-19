@@ -1,25 +1,46 @@
-// Modelo que representa um registo de streaming de uma música
-// Inclui a plataforma, número de streams, link, e a ligação à música
-
 using System.ComponentModel.DataAnnotations;
 
 namespace SequeMusic.Models
 {
+    /// <summary>
+    /// Modelo que representa um registo de streaming de uma música.
+    /// Contém informações como a plataforma de streaming, número de reproduções,
+    /// link para a música e a ligação à entidade Musica.
+    /// </summary>
     public class Streaming
     {
-        public int Id { get; set; } // Identificador único do registo de streaming (chave primária)
+        /// <summary>
+        /// Identificador único do registo de streaming (chave primária).
+        /// </summary>
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Nome da plataforma onde a música foi reproduzida (ex: Spotify, YouTube).
+        /// Campo obrigatório.
+        /// </summary>
         [Required]
-        public string Plataforma { get; set; } // Nome da plataforma (ex: Spotify, YouTube) — obrigatório
+        public string Plataforma { get; set; }
 
-        public int NumeroDeStreams { get; set; } // Número total de reproduções (streams)
+        /// <summary>
+        /// Número total de reproduções (streams) registadas nesta plataforma.
+        /// </summary>
+        public int NumeroDeStreams { get; set; }
 
+        /// <summary>
+        /// URL direto para a música na plataforma de streaming.
+        /// Validação automática de URL.
+        /// </summary>
         [Url]
-        public string Link { get; set; } // Link direto para a música na plataforma (validação de URL)
+        public string Link { get; set; }
 
-        // FK para Musica
-        public int MusicaId { get; set; } // Chave estrangeira que liga à música
+        /// <summary>
+        /// Chave estrangeira que indica a música à qual este registo de streaming pertence.
+        /// </summary>
+        public int MusicaId { get; set; }
 
-        public virtual Musica Musica { get; set; } // Objeto de navegação para a música relacionada
+        /// <summary>
+        /// Objeto de navegação para a música relacionada (relação N:1).
+        /// </summary>
+        public virtual Musica Musica { get; set; }
     }
 }

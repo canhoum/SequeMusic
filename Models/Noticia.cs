@@ -1,6 +1,3 @@
-// Modelo que representa uma notícia associada a um artista
-// Inclui título, conteúdo, data, fonte, imagem, resumo e ligação ao artista
-
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -8,35 +5,62 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SequeMusic.Models
 {
+    /// <summary>
+    /// Modelo que representa uma notícia associada a um artista.
+    /// Contém título, conteúdo, data de publicação, fonte, resumo, imagem e ligação ao artista.
+    /// </summary>
     public class Noticia
     {
-        public int Id { get; set; } // Identificador único da notícia (chave primária)
+        /// <summary>
+        /// Identificador único da notícia (chave primária).
+        /// </summary>
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Título da notícia (obrigatório).
+        /// </summary>
         [Required]
-        public string Titulo { get; set; } // Título da notícia (obrigatório)
+        public string Titulo { get; set; }
 
-        public string Conteudo { get; set; } = ""; // Texto completo da notícia
+        /// <summary>
+        /// Texto completo da notícia.
+        /// </summary>
+        public string Conteudo { get; set; } = "";
 
-        public DateTime Data_Publicacao { get; set; } // Data em que a notícia foi publicada
+        /// <summary>
+        /// Data em que a notícia foi publicada.
+        /// </summary>
+        public DateTime Data_Publicacao { get; set; }
 
-        public string Fonte { get; set; } = ""; // Fonte da notícia (opcional)
+        /// <summary>
+        /// Fonte da notícia (ex: nome do site ou jornal).
+        /// </summary>
+        public string Fonte { get; set; } = "";
 
+        /// <summary>
+        /// Resumo curto da notícia (máx. 300 caracteres).
+        /// </summary>
         [Display(Name = "Resumo")]
         [StringLength(300)]
-        public string Resumo { get; set; } = ""; 
-        // Resumo curto da notícia, útil para listagens (limitado a 300 caracteres)
+        public string Resumo { get; set; } = "";
 
+        /// <summary>
+        /// URL para imagem associada à notícia.
+        /// </summary>
         [Display(Name = "URL da Imagem")]
-        public string ImagemUrl { get; set; } = ""; 
-        // URL para imagem de capa associada à notícia
+        public string ImagemUrl { get; set; } = "";
 
-        // FK para Artista
-        public int ArtistaId { get; set; } // Chave estrangeira que liga à entidade Artista
+        /// <summary>
+        /// Chave estrangeira que liga a notícia a um artista.
+        /// </summary>
+        public int ArtistaId { get; set; }
 
+        /// <summary>
+        /// Objeto de navegação para o artista associado à notícia.
+        /// Ignorado em validação de formulários e na serialização JSON.
+        /// </summary>
         [JsonIgnore]
         [ValidateNever]
-        public virtual Artista Artista { get; set; } 
-        // Objeto de navegação para o artista relacionado
-        // Ignorado em validação de formulários e na serialização JSON (evita loops)
+        public virtual Artista Artista { get; set; }
     }
 }

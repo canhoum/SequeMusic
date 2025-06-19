@@ -1,48 +1,81 @@
-// Importa as bibliotecas necessárias para o funcionamento da base de dados
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SequeMusic.Models;
 
 namespace SequeMusic.Data
 {
-    // Classe responsável pela gestão da base de dados
-    // Herda de IdentityDbContext para integrar a gestão de utilizadores
+    /// <summary>
+    /// Classe responsável pela gestão da base de dados da aplicação SequeMusic.
+    /// Herda de IdentityDbContext para suporte à autenticação e gestão de utilizadores.
+    /// </summary>
     public class ApplicationDbContext : IdentityDbContext<Utilizador>
     {
-        // Construtor que recebe as opções de configuração da base de dados
+        /// <summary>
+        /// Construtor da classe ApplicationDbContext que recebe opções de configuração.
+        /// </summary>
+        /// <param name="options">Opções de configuração do contexto.</param>
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
         }
 
-        // Tabelas da base de dados (DbSets)
+        /// <summary>
+        /// Representa a tabela de músicas na base de dados.
+        /// </summary>
         public DbSet<Musica> Musicas { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de artistas na base de dados.
+        /// </summary>
         public DbSet<Artista> Artistas { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de géneros musicais.
+        /// </summary>
         public DbSet<Genero> Generos { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de avaliações feitas por utilizadores.
+        /// </summary>
         public DbSet<Avaliacao> Avaliacoes { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de registos de streaming.
+        /// </summary>
         public DbSet<Streaming> Streamings { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de notícias associadas a artistas.
+        /// </summary>
         public DbSet<Noticia> Noticias { get; set; }
+
+        /// <summary>
+        /// Representa a tabela de utilizadores da aplicação.
+        /// </summary>
         public DbSet<Utilizador> Utilizadors { get; set; }
 
-        // Configuração das relações entre as entidades
+        /// <summary>
+        /// Configura as relações entre entidades e comportamentos de eliminação em cascata.
+        /// </summary>
+        /// <param name="modelBuilder">Construtor de modelos do EF Core.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Invoca a configuração base do Identity
             base.OnModelCreating(modelBuilder);
 
-            // Relação 1:N entre Musica e Artista
+            // Relação 1:N entre Música e Artista
             modelBuilder.Entity<Musica>()
                 .HasOne(m => m.Artista)
                 .WithMany(a => a.Musicas)
                 .HasForeignKey(m => m.ArtistaId)
-                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar um artista, elimina as músicas associadas
+                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar um artista, elimina as suas músicas
 
-            // Relação 1:N entre Musica e Genero
+            // Relação 1:N entre Música e Género
             modelBuilder.Entity<Musica>()
                 .HasOne(m => m.Genero)
                 .WithMany(g => g.Musicas)
                 .HasForeignKey(m => m.GeneroId)
-                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar um género, elimina as músicas associadas
+                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar um género, elimina as suas músicas
 
             // Relação 1:N entre Avaliação e Música
             modelBuilder.Entity<Avaliacao>()
@@ -63,7 +96,7 @@ namespace SequeMusic.Data
                 .HasOne(s => s.Musica)
                 .WithMany(m => m.Streamings)
                 .HasForeignKey(s => s.MusicaId)
-                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar uma música, elimina os streamings associados
+                .OnDelete(DeleteBehavior.Cascade); // Ao eliminar uma música, elimina os streamings
 
             // Relação 1:N entre Notícia e Artista
             modelBuilder.Entity<Noticia>()

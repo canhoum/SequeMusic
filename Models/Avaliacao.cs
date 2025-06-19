@@ -1,30 +1,53 @@
-// Modelo que representa uma avaliação feita por um utilizador a uma música
-// Inclui nota (1 a 5), comentário, data, e ligações à música e ao utilizador
-
 using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace SequeMusic.Models
 {
+    /// <summary>
+    /// Modelo que representa uma avaliação feita por um utilizador a uma música.
+    /// Contém nota, comentário, data e referências à música e ao utilizador.
+    /// </summary>
     public class Avaliacao
     {
-        public int Id { get; set; } // Identificador único da avaliação (chave primária)
+        /// <summary>
+        /// Identificador único da avaliação (chave primária).
+        /// </summary>
+        public int Id { get; set; }
 
+        /// <summary>
+        /// Nota atribuída pelo utilizador (entre 1 e 5).
+        /// </summary>
         [Range(1, 5)]
-        public int Nota { get; set; } // Nota dada pelo utilizador (entre 1 e 5)
+        public int Nota { get; set; }
 
-        public string Comentario { get; set; } // Comentário opcional associado à avaliação
+        /// <summary>
+        /// Comentário opcional escrito pelo utilizador.
+        /// </summary>
+        public string Comentario { get; set; }
 
-        public DateTime Data_Avaliacao { get; set; } // Data em que a avaliação foi feita
+        /// <summary>
+        /// Data em que a avaliação foi submetida.
+        /// </summary>
+        public DateTime Data_Avaliacao { get; set; }
 
-        
-        public int MusicaId { get; set; } // FK para a música avaliada
+        /// <summary>
+        /// Chave estrangeira para a música avaliada.
+        /// </summary>
+        public int MusicaId { get; set; }
 
-        public virtual Musica Musica { get; set; } // Navegação para a música (relação N:1)
+        /// <summary>
+        /// Navegação para a música associada (relação N:1).
+        /// </summary>
+        public virtual Musica Musica { get; set; }
 
-        // FK para Utilizador
-        public string UtilizadorId { get; set; } // FK para o utilizador que avaliou
+        /// <summary>
+        /// Chave estrangeira para o utilizador que avaliou.
+        /// </summary>
+        public string UtilizadorId { get; set; }
 
-        public virtual Utilizador Utilizador { get; set; } // Navegação para o utilizador (relação N:1)
+        /// <summary>
+        /// Navegação para o utilizador que realizou a avaliação (relação N:1).
+        /// </summary>
+        public virtual Utilizador Utilizador { get; set; }
     }
 }

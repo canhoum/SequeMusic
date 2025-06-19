@@ -1,15 +1,19 @@
-// Classe estática responsável por inserir dados iniciais (seed) na base de dados
-// Neste caso, cria automaticamente um utilizador administrador ao iniciar a aplicação
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using SequeMusic.Models;
 
 namespace SequeMusic.Data
 {
+    /// <summary>
+    /// Classe estática responsável por inserir dados iniciais (seed) na base de dados.
+    /// Neste caso, cria automaticamente um utilizador administrador ao iniciar a aplicação.
+    /// </summary>
     public static class SeedData
     {
-        // Método responsável por criar o utilizador administrador se ainda não existir
+        /// <summary>
+        /// Cria um utilizador admin com as suas respectivas permissões, caso ainda não exista.
+        /// </summary>
+        /// <param name="serviceProvider">Fornece os serviços necessários, como UserManager e RoleManager.</param>
         public static async Task CriarUtilizadorAdmin(IServiceProvider serviceProvider)
         {
             // Obtém os serviços necessários para criar utilizadores e roles
@@ -38,7 +42,7 @@ namespace SequeMusic.Data
                     Email = email,
                     Nome = "Administrador",
                     EmailConfirmed = true,
-                    IsAdmin = true, // flag personalizada no modelo
+                    IsAdmin = true,
                     DataNascimento = new DateTime(2003, 11, 24),
                     Telemovel = "912345678"
                 };

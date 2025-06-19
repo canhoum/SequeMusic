@@ -1,7 +1,3 @@
-// Controlador responsável pela gestão de utilizadores
-// Inclui funcionalidades de autenticação, registo, login externo,
-// edição e eliminação de contas, upgrade premium e conclusão de perfil.
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +12,16 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace SequeMusic.Controllers
 {
-    [Authorize] // Apenas utilizadores autenticados podem aceder
+    /// <summary>
+    /// Controlador responsável pela gestão de utilizadores: login, registo, edição,
+    /// upgrade premium, eliminação de conta e autenticação externa.
+    /// </summary>
+    [Authorize]
     public class UtilizadorsController : Controller
     {
-        private readonly ApplicationDbContext _context; // Referência à base de dados
-        private readonly UserManager<Utilizador> _userManager; // Gestão de utilizadores
-        private readonly SignInManager<Utilizador> _signInManager; // Gestão de login/autenticação
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<Utilizador> _userManager;
+        private readonly SignInManager<Utilizador> _signInManager;
 
         public UtilizadorsController(ApplicationDbContext context, UserManager<Utilizador> userManager, SignInManager<Utilizador> signInManager)
         {
@@ -30,10 +30,18 @@ namespace SequeMusic.Controllers
             _signInManager = signInManager;
         }
 
+        /// <summary>
+        /// Mostra o formulário de login.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Login() => View(); // Mostra formulário de login
+        public IActionResult Login() => View();
 
+        /// <summary>
+        /// Submete credenciais de login.
+        /// </summary>
+        /// <param name="model">Dados do formulário de login.</param>
+        /// <returns>Redireciona se válido, ou mostra erros se inválido.</returns>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -43,7 +51,7 @@ namespace SequeMusic.Controllers
             {
                 try
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email); // Procura utilizador
+                    var user = await _userManager.FindByEmailAsync(model.Email);
                     if (user == null)
                         ModelState.AddModelError("Email", "Email não encontrado.");
                     else if (!await _userManager.CheckPasswordAsync(user, model.Password))
@@ -67,11 +75,8 @@ namespace SequeMusic.Controllers
                                 Response.Cookies.Append("UserAuthCookie", user.Id, cookieOptions);
                             }
 
-                            // Se faltar dados obrigatórios, redireciona para completar perfil
                             if (string.IsNullOrEmpty(user.Telemovel) || user.DataNascimento == default)
-                            {
                                 return RedirectToAction("CompletarPerfil", new { id = user.Id });
-                            }
 
                             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
                             identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
@@ -79,6 +84,7 @@ namespace SequeMusic.Controllers
 
                             var principal = new ClaimsPrincipal(identity);
                             await _signInManager.SignInAsync(user, model.RememberMe);
+
                             return RedirectToAction("Index", "Home");
                         }
                     }
@@ -92,16 +98,21 @@ namespace SequeMusic.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Inicia login com provedores externos (Google, etc.).
+        /// </summary>
         [AllowAnonymous]
         [HttpPost]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
-            // Inicia autenticação externa
             var redirectUrl = Url.Action("ExternalLoginCallback", "Utilizadors", new { returnUrl });
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return Challenge(properties, provider);
         }
 
+        /// <summary>
+        /// Callback após autenticação externa.
+        /// </summary>
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
@@ -144,19 +155,22 @@ namespace SequeMusic.Controllers
 
             await _signInManager.SignInAsync(utilizador, isPersistent: false);
 
-            // Redireciona para completar perfil se faltar dados
             if (utilizador.DataNascimento == default || string.IsNullOrWhiteSpace(utilizador.Telemovel))
-            {
                 return RedirectToAction("CompletarPerfil", new { id = utilizador.Id });
-            }
 
             return LocalRedirect(returnUrl);
         }
 
+        /// <summary>
+        /// Mostra formulário de registo.
+        /// </summary>
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult Register() => View("~/Views/Utilizadors/Register.cshtml"); // Mostra formulário de registo
+        public IActionResult Register() => View("~/Views/Utilizadors/Register.cshtml");
 
+        /// <summary>
+        /// Submete dados para criar novo utilizador.
+        /// </summary>
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -189,6 +203,9 @@ namespace SequeMusic.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// Mostra lista de utilizadores (apenas Admin).
+        /// </summary>
         public async Task<IActionResult> Index()
         {
             var userId = _userManager.GetUserId(User);
@@ -200,15 +217,20 @@ namespace SequeMusic.Controllers
             return View(users);
         }
 
+        /// <summary>
+        /// Termina sessão do utilizador.
+        /// </summary>
         public async Task<IActionResult> Logout()
         {
-            // Termina sessão
             Global.LoggedUser = null;
             await _signInManager.SignOutAsync();
             Response.Cookies.Delete("UserAuthCookie");
             return RedirectToAction("Index", "Home");
         }
 
+        /// <summary>
+        /// Mostra os detalhes de um utilizador.
+        /// </summary>
         public async Task<IActionResult> Details(string id)
         {
             if (id == null) return NotFound();
@@ -217,9 +239,13 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
+        /// <summary>
+        /// Mostra formulário de edição do utilizador.
+        /// </summary>
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null) return NotFound();
+
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
             if (id != userId && !isAdmin) return Forbid();
@@ -229,11 +255,15 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
+        /// <summary>
+        /// Submete alterações ao perfil do utilizador.
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,Email,Telemovel,DataNascimento")] Utilizador utilizador)
         {
             if (id != utilizador.Id) return NotFound();
+
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
             if (id != userId && !isAdmin) return Forbid();
@@ -271,9 +301,13 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
+        /// <summary>
+        /// Mostra confirmação de eliminação da conta.
+        /// </summary>
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null) return NotFound();
+
             var userId = _userManager.GetUserId(User);
             var isAdmin = User.IsInRole("Admin");
             if (id != userId && !isAdmin) return Forbid();
@@ -283,6 +317,9 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
+        /// <summary>
+        /// Submete eliminação da conta.
+        /// </summary>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
@@ -312,6 +349,9 @@ namespace SequeMusic.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        /// <summary>
+        /// Mostra o formulário de upgrade premium.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Upgrade()
         {
@@ -324,9 +364,12 @@ namespace SequeMusic.Controllers
                 return RedirectToAction("Details", new { id = user.Id });
             }
 
-            return View(); // Mostra formulário para upgrade premium
+            return View();
         }
 
+        /// <summary>
+        /// Submete pedido de upgrade para conta Premium.
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmUpgrade(string nome, string cartao, string validade, string cvc)
@@ -334,7 +377,6 @@ namespace SequeMusic.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
 
-            // Simulação: pagamento aceite
             user.IsPremium = true;
             await _userManager.UpdateAsync(user);
 
@@ -342,6 +384,9 @@ namespace SequeMusic.Controllers
             return RedirectToAction("Details", new { id = user.Id });
         }
 
+        /// <summary>
+        /// Mostra formulário para completar perfil.
+        /// </summary>
         [HttpGet]
         public async Task<IActionResult> CompletarPerfil(string id)
         {
@@ -356,6 +401,9 @@ namespace SequeMusic.Controllers
             return View(utilizador);
         }
 
+        /// <summary>
+        /// Submete dados em falta no perfil do utilizador.
+        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CompletarPerfil(string id, [Bind("Telemovel,DataNascimento")] Utilizador dados)
@@ -371,7 +419,6 @@ namespace SequeMusic.Controllers
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
                 return View(dados);
             }
 
@@ -379,6 +426,9 @@ namespace SequeMusic.Controllers
             return RedirectToAction("Details", new { id = user.Id });
         }
 
+        /// <summary>
+        /// Verifica se o utilizador com o ID existe.
+        /// </summary>
         private async Task<bool> UtilizadorExists(string id)
         {
             return await _userManager.Users.AnyAsync(e => e.Id == id);

@@ -1,14 +1,18 @@
-using Microsoft.AspNetCore.Authorization; // Permite aplicar regras de autorização por função ou identidade
-using Microsoft.AspNetCore.Mvc; // Para construir controladores e respostas HTTP
-using Microsoft.EntityFrameworkCore; // Permite operações com base de dados usando Entity Framework
-using SequeMusic.Data; // Referência ao contexto da base de dados
-using SequeMusic.Models; // Referência aos modelos da aplicação
-using System.Linq; // Para operações de filtragem e ordenação
-using System.Threading.Tasks; // Para suporte a métodos assíncronos
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SequeMusic.Data;
+using SequeMusic.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SequeMusic.Controllers
 {
-    [Authorize] // Todos os métodos requerem autenticação por defeito
+    /// <summary>
+    /// Controlador responsável pela gestão de streamings de músicas.
+    /// Apenas administradores e utilizadores premium podem criar ou eliminar streamings.
+    /// </summary>
+    [Authorize]
     public class StreamingController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,61 +22,78 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // Mostra todos os streamings de uma música específica
-        [AllowAnonymous] // Permite acesso a utilizadores não autenticados
+        /// <summary>
+        /// Lista todos os streamings associados a uma música específica.
+        /// </summary>
+        /// <param name="musicaId">ID da música.</param>
+        /// <returns>View com a lista de streamings ou NotFound.</returns>
+        [AllowAnonymous]
         public async Task<IActionResult> Index(int musicaId)
         {
             var musica = await _context.Musicas
-                .Include(m => m.Artista) // Inclui informação do artista
-                .Include(m => m.Streamings) // Inclui lista de streamings
-                .FirstOrDefaultAsync(m => m.ID == musicaId); // Procura a música pelo ID
+                .Include(m => m.Artista)
+                .Include(m => m.Streamings)
+                .FirstOrDefaultAsync(m => m.ID == musicaId);
 
-            if (musica == null) return NotFound(); // Se não existir, retorna 404
+            if (musica == null) return NotFound();
 
-            ViewBag.Musica = musica; // Envia a música para a view
-            return View(musica.Streamings.ToList()); // Envia os streamings para a view
+            ViewBag.Musica = musica;
+            return View(musica.Streamings.ToList());
         }
 
-        // Mostra o formulário para criar um novo streaming
-        [Authorize] // Apenas utilizadores autenticados
+        /// <summary>
+        /// Mostra o formulário para criar um novo streaming.
+        /// Apenas utilizadores Premium ou Admin podem aceder.
+        /// </summary>
+        /// <param name="musicaId">ID da música a associar o streaming.</param>
+        /// <returns>View de criação ou Forbid/NotFound.</returns>
         public async Task<IActionResult> Create(int musicaId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
             if (user == null || (!user.IsAdmin && !user.IsPremium))
-                return Forbid(); // Bloqueia se o utilizador não for admin ou premium
+                return Forbid();
 
             var musica = await _context.Musicas.FindAsync(musicaId);
-            if (musica == null) return NotFound(); // Se a música não existir
+            if (musica == null) return NotFound();
 
-            ViewBag.Musica = musica; // Envia dados da música para a view
-            return View(new Streaming { MusicaId = musicaId }); // Inicializa novo objeto Streaming
+            ViewBag.Musica = musica;
+            return View(new Streaming { MusicaId = musicaId });
         }
 
-        // Submete o formulário para criar um novo streaming
+        /// <summary>
+        /// Submete um novo streaming para a base de dados.
+        /// Apenas utilizadores Premium/Admin podem criar.
+        /// </summary>
+        /// <param name="streaming">Objeto do streaming preenchido no formulário.</param>
+        /// <returns>Redirect para detalhes da música ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> Create(Streaming streaming)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
             if (user == null || (!user.IsAdmin && !user.IsPremium))
-                return Forbid(); // Só admin ou premium podem submeter
+                return Forbid();
 
-            ModelState.Remove("Musica"); // Ignora a validação automática do campo "Musica" (nav.prop)
+            ModelState.Remove("Musica"); // Ignora validação da propriedade de navegação
 
             if (ModelState.IsValid)
             {
-                _context.Add(streaming); // Adiciona o streaming à BD
-                await _context.SaveChangesAsync(); // Guarda as alterações
-                return RedirectToAction("Details", "Musicas", new { id = streaming.MusicaId }); // Redireciona para detalhes da música
+                _context.Add(streaming);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "Musicas", new { id = streaming.MusicaId });
             }
 
             ViewBag.Musica = await _context.Musicas.FindAsync(streaming.MusicaId);
-            return View(streaming); // Volta ao formulário com erros
+            return View(streaming);
         }
 
-        // Mostra o formulário de confirmação para eliminar um streaming
-        [Authorize(Roles = "Admin")] // Apenas administradores podem eliminar
+        /// <summary>
+        /// Mostra a página de confirmação para apagar um streaming.
+        /// Apenas administradores têm acesso.
+        /// </summary>
+        /// <param name="id">ID do streaming.</param>
+        /// <returns>View com os dados do streaming ou NotFound.</returns>
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -83,23 +104,27 @@ namespace SequeMusic.Controllers
 
             if (streaming == null) return NotFound();
 
-            return View(streaming); // Mostra confirmação da eliminação
+            return View(streaming);
         }
 
-        // Submete a eliminação do streaming
+        /// <summary>
+        /// Submete a eliminação definitiva de um streaming (Admin).
+        /// </summary>
+        /// <param name="id">ID do streaming a eliminar.</param>
+        /// <returns>Redirect para detalhes da música após eliminação.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")] // Apenas administradores
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var streaming = await _context.Streamings.FindAsync(id);
             if (streaming != null)
             {
-                _context.Streamings.Remove(streaming); // Remove da BD
-                await _context.SaveChangesAsync(); // Guarda alterações
+                _context.Streamings.Remove(streaming);
+                await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Details", "Musicas", new { id = streaming.MusicaId }); // Volta aos detalhes da música
+            return RedirectToAction("Details", "Musicas", new { id = streaming.MusicaId });
         }
     }
 }

@@ -10,31 +10,38 @@ using System.Threading.Tasks;
 
 namespace SequeMusic.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pela gestão de músicas na aplicação SequeMusic.
+    /// Inclui listagem, criação, edição, eliminação, detalhes e promoção.
+    /// </summary>
     public class MusicasController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<Utilizador> _userManager;
 
-        // Construtor que injeta o contexto da base de dados e o gestor de utilizadores
         public MusicasController(ApplicationDbContext context, UserManager<Utilizador> userManager)
         {
             _context = context;
             _userManager = userManager;
         }
 
-        // Apresenta uma lista de músicas
-        // Se o utilizador for admin, pode usar filtros
-        // Caso contrário, apresenta o top 10 por número de streams
+        /// <summary>
+        /// Lista de músicas.
+        /// Mostra o Top 10 se o utilizador for normal; Admins podem filtrar por género, artista e ano.
+        /// </summary>
+        /// <param name="generoFiltro">Género a filtrar (opcional).</param>
+        /// <param name="artistaFiltro">Artista a filtrar (opcional).</param>
+        /// <param name="anoFiltro">Ano de lançamento a filtrar (opcional).</param>
+        /// <returns>View com a lista de músicas.</returns>
         public async Task<IActionResult> Index(string generoFiltro, string artistaFiltro, int? anoFiltro)
         {
-            // Query base com includes para carregar relações
             var query = _context.Musicas
                 .Include(m => m.Artista)
                 .Include(m => m.Genero)
                 .Include(m => m.Streamings)
                 .AsQueryable();
 
-            // Se não for admin, devolve top 10 por número de streams
+            // Se não for admin, mostra o Top 10 com mais streamings
             if (!User.IsInRole("Admin"))
             {
                 var top10 = await query
@@ -44,7 +51,7 @@ namespace SequeMusic.Controllers
                 return View(top10);
             }
 
-            // Aplica filtros se forem fornecidos
+            // Aplica filtros para admins
             if (!string.IsNullOrEmpty(generoFiltro))
                 query = query.Where(m => m.Genero.Nome == generoFiltro);
 
@@ -54,15 +61,17 @@ namespace SequeMusic.Controllers
             if (anoFiltro.HasValue)
                 query = query.Where(m => m.AnoDeLancamento == anoFiltro.Value);
 
-            // Preenche dropdowns para os filtros
             ViewBag.Generos = new SelectList(await _context.Generos.ToListAsync(), "Nome", "Nome");
             ViewBag.Artistas = new SelectList(await _context.Artistas.ToListAsync(), "Nome_Artista", "Nome_Artista");
 
-            // Ordena por posição Billboard (ou 999 caso não tenha)
             return View(await query.OrderBy(m => m.PosicaoBillboard ?? 999).ToListAsync());
         }
 
-        // Mostra detalhes de uma música específica
+        /// <summary>
+        /// Mostra os detalhes de uma música específica.
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <returns>View com os detalhes da música ou NotFound.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -79,7 +88,10 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // Mostra formulário para criar nova música (Premium/Admin)
+        /// <summary>
+        /// Mostra o formulário de criação de música (apenas para Premium ou Admin).
+        /// </summary>
+        /// <returns>View do formulário ou Forbid se não autorizado.</returns>
         [Authorize]
         public async Task<IActionResult> Create()
         {
@@ -92,7 +104,12 @@ namespace SequeMusic.Controllers
             return View();
         }
 
-        // Submete criação de música com upload de .mp3
+        /// <summary>
+        /// Submete uma nova música e guarda o ficheiro .mp3.
+        /// </summary>
+        /// <param name="musica">Objeto música a criar.</param>
+        /// <param name="ficheiroAudio">Ficheiro de áudio .mp3 enviado.</param>
+        /// <returns>Redirect ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -105,7 +122,7 @@ namespace SequeMusic.Controllers
             if (!user.IsPremium && !user.IsAdmin)
                 return Forbid();
 
-            // Garante que o artista existe ou cria novo com base no nome do utilizador
+            // Cria artista se não existir com o nome do utilizador Premium
             var artista = await _context.Artistas.FirstOrDefaultAsync(a => a.Nome_Artista == user.Nome);
             if (artista == null)
             {
@@ -151,7 +168,11 @@ namespace SequeMusic.Controllers
             return View("PromoverCreate", musica);
         }
 
-        // Editar música (apenas Admin)
+        /// <summary>
+        /// Mostra o formulário para editar uma música (apenas Admin).
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <returns>View de edição ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -165,7 +186,13 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // Submete edição (pode incluir novo ficheiro .mp3)
+        /// <summary>
+        /// Submete alterações a uma música (pode incluir novo .mp3).
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <param name="musica">Objeto atualizado.</param>
+        /// <param name="ficheiroAudio">Novo ficheiro (opcional).</param>
+        /// <returns>Redirect ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -212,7 +239,11 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // Confirmação para apagar música
+        /// <summary>
+        /// Mostra confirmação antes de apagar uma música (Admin).
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <returns>View de confirmação ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -227,7 +258,11 @@ namespace SequeMusic.Controllers
             return View(musica);
         }
 
-        // Submete a eliminação da música
+        /// <summary>
+        /// Elimina definitivamente a música da base de dados (Admin).
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <returns>Redireciona para Index após apagar.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -239,7 +274,12 @@ namespace SequeMusic.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Atualiza a posição Billboard (Admin)
+        /// <summary>
+        /// Atualiza a posição Billboard de uma música (Admin).
+        /// </summary>
+        /// <param name="id">ID da música.</param>
+        /// <param name="posicao">Nova posição Billboard.</param>
+        /// <returns>Redireciona para Index.</returns>
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AtualizarPosicao(int id, int posicao)
@@ -253,7 +293,10 @@ namespace SequeMusic.Controllers
             return RedirectToAction("Index");
         }
 
-        // Formulário para promover música (exclusivo Premium/Admin)
+        /// <summary>
+        /// Mostra o formulário para promoção de música (Premium/Admin).
+        /// </summary>
+        /// <returns>View de promoção ou informativa se não tiver permissões.</returns>
         [Authorize]
         public async Task<IActionResult> Promover()
         {

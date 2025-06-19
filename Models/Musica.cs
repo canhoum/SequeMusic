@@ -1,52 +1,92 @@
-// Modelo que representa uma música no sistema
-// Inclui dados como título, álbum, ano, letra, e relações com artista, género, avaliações e streamings
-
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace SequeMusic.Models;
 
+/// <summary>
+/// Modelo que representa uma música no sistema.
+/// Contém propriedades como título, álbum, letra, ano de lançamento,
+/// link de áudio, posição no ranking Billboard, e relações com artista, género, avaliações e streamings.
+/// </summary>
 public class Musica
 {
+    /// <summary>
+    /// Identificador único da música (chave primária).
+    /// </summary>
     [Key]
-    public int ID { get; set; } // Identificador único da música (chave primária)
+    public int ID { get; set; }
 
+    /// <summary>
+    /// Título da música. Campo obrigatório.
+    /// </summary>
     [Required(ErrorMessage = "O título é obrigatório.")]
-    public string? Titulo { get; set; } // Título da música (obrigatório)
+    public string? Titulo { get; set; }
 
-    public string? Album { get; set; } // Nome do álbum (opcional)
+    /// <summary>
+    /// Nome do álbum ao qual a música pertence (opcional).
+    /// </summary>
+    public string? Album { get; set; }
 
-    public string? Letra { get; set; } // Letra da música (opcional)
+    /// <summary>
+    /// Letra da música (opcional).
+    /// </summary>
+    public string? Letra { get; set; }
 
+    /// <summary>
+    /// Ano em que a música foi lançada.
+    /// </summary>
     [Display(Name = "Ano de Lançamento")]
-    public int AnoDeLancamento { get; set; } // Ano em que a música foi lançada
+    public int AnoDeLancamento { get; set; }
 
-    public string LinkAudio { get; set; } = ""; // URL ou link para escutar a música
+    /// <summary>
+    /// URL externo para escutar a música (Spotify, YouTube, etc.).
+    /// </summary>
+    public string LinkAudio { get; set; } = "";
 
-    public string NomeFicheiroAudio { get; set; } = ""; // Nome do ficheiro de áudio armazenado no sistema
+    /// <summary>
+    /// Nome do ficheiro de áudio armazenado localmente.
+    /// </summary>
+    public string NomeFicheiroAudio { get; set; } = "";
 
-    public int? PosicaoBillboard { get; set; } // Posição no ranking Billboard (opcional)
+    /// <summary>
+    /// Posição da música no ranking Billboard (opcional).
+    /// </summary>
+    public int? PosicaoBillboard { get; set; }
 
-    // Relação N:1 com Artista
-    public int ArtistaId { get; set; } // Chave estrangeira para o artista
+    /// <summary>
+    /// FK para o artista responsável pela música.
+    /// </summary>
+    public int ArtistaId { get; set; }
+
+    /// <summary>
+    /// Objeto de navegação para o artista associado à música.
+    /// </summary>
     [JsonIgnore]
     [ValidateNever]
-    public virtual Artista Artista { get; set; } // Objeto de navegação para o artista
+    public virtual Artista Artista { get; set; }
 
-    // Relação N:1 com Genero
-    public int GeneroId { get; set; } // Chave estrangeira para o género musical
+    /// <summary>
+    /// FK para o género musical da música.
+    /// </summary>
+    public int GeneroId { get; set; }
+
+    /// <summary>
+    /// Objeto de navegação para o género musical associado.
+    /// </summary>
     [JsonIgnore]
     [ValidateNever]
-    public virtual Genero Genero { get; set; } // Objeto de navegação para o género
+    public virtual Genero Genero { get; set; }
 
-    // Relação 1:N com Avaliacao
+    /// <summary>
+    /// Lista de avaliações associadas a esta música.
+    /// </summary>
     [ValidateNever]
     public virtual ICollection<Avaliacao> Avaliacoes { get; set; } = new List<Avaliacao>();
-    // Lista de avaliações associadas à música
 
-    // Relação 1:N com Streaming
+    /// <summary>
+    /// Lista de streamings registados para esta música.
+    /// </summary>
     [ValidateNever]
     public virtual ICollection<Streaming> Streamings { get; set; } = new List<Streaming>();
-    // Lista de streamings registados desta música
 }

@@ -1,15 +1,20 @@
 @model PesquisaViewModel
+
 @{
     ViewData["Title"] = "Resultados de Pesquisa";
 }
 
 <div class="container mt-4">
+    <!-- Título com o termo pesquisado -->
     <h2 class="mb-4 text-center">Resultados para: <strong>@Model.Query</strong></h2>
 
+    <!-- Secção de Artistas encontrados -->
     <div class="mb-5">
         <h3 class="text-uppercase border-bottom pb-2 mb-3">Artistas</h3>
+
         @if (Model.Artistas.Any())
         {
+            <!-- Lista de cartões de artistas -->
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var artista in Model.Artistas)
                 {
@@ -17,6 +22,7 @@
                         <div class="card h-100 border-dark shadow-sm">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-primary">@artista.Nome_Artista</h5>
+                                <!-- Link para detalhes do artista -->
                                 <a asp-controller="Artistas" asp-action="Details" asp-route-id="@artista.Id" class="btn btn-outline-dark mt-2">Ver Perfil</a>
                             </div>
                         </div>
@@ -26,14 +32,18 @@
         }
         else
         {
+            <!-- Caso nenhum artista seja encontrado -->
             <p class="text-muted">Nenhum artista encontrado.</p>
         }
     </div>
 
+    <!-- Secção de Músicas encontradas -->
     <div>
         <h3 class="text-uppercase border-bottom pb-2 mb-3">Músicas</h3>
+
         @if (Model.Musicas.Any())
         {
+            <!-- Lista de músicas com botão "Ouvir" -->
             <ul class="list-group list-group-flush">
                 @foreach (var musica in Model.Musicas)
                 {
@@ -42,6 +52,7 @@
                             <h5 class="mb-1">@musica.Titulo</h5>
                             <small class="text-muted">por @musica.Artista?.Nome_Artista</small>
                         </div>
+                        <!-- Link para detalhes da música -->
                         <a asp-controller="Musicas" asp-action="Details" asp-route-id="@musica.ID" class="btn btn-sm btn-outline-success">Ouvir</a>
                     </li>
                 }
@@ -49,6 +60,7 @@
         }
         else
         {
+            <!-- Caso nenhuma música seja encontrada -->
             <p class="text-muted">Nenhuma música encontrada.</p>
         }
     </div>

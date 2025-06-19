@@ -5,9 +5,9 @@ namespace SequeMusic.Models
 {
     public class ErrorViewModel
     {
-        public string? RequestId { get; set; } // ID do pedido HTTP que gerou o erro
+        public string? RequestId { get; set; }
 
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId); 
-        // Indica se o ID do pedido deve ser mostrado (se não for nulo ou vazio)
+
     }
 }

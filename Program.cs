@@ -1,4 +1,3 @@
-// Dependências
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -14,9 +13,8 @@ using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------------
-// CREDENCIAIS GOOGLE OAUTH
-// -------------------------
+#region Credenciais Google OAuth
+// Lê as credenciais de autenticação do Google a partir de um ficheiro JSON local
 string? googleClientId = null;
 string? googleClientSecret = null;
 
@@ -38,27 +36,27 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine("⚠️ Erro ao carregar as credenciais do Google:");
+    Console.WriteLine("Erro ao carregar as credenciais do Google:");
     Console.WriteLine(ex.Message);
-    Environment.Exit(1); // Encerra a app se falhar
+    Environment.Exit(1); // Encerra a aplicação se falhar a autenticação externa
 }
+#endregion
 
-// -----------------
-// BASE DE DADOS
-// -----------------
+#region Base de Dados
+// Configura o Entity Framework para usar SQL Server com a connection string definida
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+#endregion
 
-// -----------------
-// IDENTITY
-// -----------------
+#region Identity (Autenticação e Autorização)
+// Adiciona suporte a Identity com tokens padrão
 builder.Services.AddIdentity<Utilizador, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+#endregion
 
-// -----------------
-// JWT BEARER
-// -----------------
+#region JWT Bearer Authentication
+// Configuração do sistema de autenticação via JWT
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "CHAVE_SUPER_SECRETA_DEV_2025_SEGURA_XYZ123";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "SequeMusicAPI";
 
@@ -81,10 +79,10 @@ builder.Services.AddAuthentication()
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
+#endregion
 
-// -----------------------------
-// COOKIES DE AUTENTICAÇÃO
-// -----------------------------
+#region Cookies de Autenticação
+// Configura cookies de autenticação personalizados
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Utilizadors/Login";
@@ -94,7 +92,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
     options.Events.OnSigningIn = context =>
     {
-        Console.WriteLine("Cookie de autenticação está sendo assinado para: " + context.Principal.Identity.Name);
+        Console.WriteLine("Cookie de autenticação a ser gerado para: " + context.Principal.Identity.Name);
         return Task.CompletedTask;
     };
 
@@ -108,10 +106,10 @@ builder.Services.ConfigureApplicationCookie(options =>
         await Task.CompletedTask;
     };
 });
+#endregion
 
-// -----------------
-// CORS (Permissivo)
-// -----------------
+#region CORS
+// Política permissiva de CORS para permitir chamadas de qualquer origem (ideal para testes locais)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", builder =>
@@ -121,10 +119,10 @@ builder.Services.AddCors(options =>
                .AllowAnyMethod();
     });
 });
+#endregion
 
-// ------------------------------
-// MVC, JSON, Razor, Swagger
-// ------------------------------
+#region MVC, Razor, JSON, Swagger
+// Adiciona suporte a MVC, JSON com referência circular, Razor Pages e Swagger
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -163,13 +161,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+#endregion
 
-// --------------------
-// CONFIGURAÇÃO FINAL
-// --------------------
+#region Configuração e Middlewares
 var app = builder.Build();
 
-// Swagger apenas em DEV
+// Ativa o Swagger apenas em ambiente de desenvolvimento
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -180,21 +177,21 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// Seed de Admin
+// Executa o seed inicial (criação do utilizador admin)
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await SeedData.CriarUtilizadorAdmin(services);
 }
 
-// Middlewares
+// Pipeline de middlewares
 app.UseStaticFiles();
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Rotas
+// Define rotas padrão
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -203,3 +200,4 @@ app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
+#endregion
