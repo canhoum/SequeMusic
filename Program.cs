@@ -181,7 +181,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    await SeedData.CriarUtilizadorAdmin(services);
+await SeedData.CriarUtilizadorAdmin(services);
 }
 
 // Pipeline de middlewares
