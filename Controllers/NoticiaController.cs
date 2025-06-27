@@ -1,14 +1,18 @@
 using Microsoft.AspNetCore.Authorization; 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc.Rendering; 
 using Microsoft.EntityFrameworkCore;
-using SequeMusic.Data;
-using SequeMusic.Models;
-using System.Linq;
-using System.Threading.Tasks;
+using SequeMusic.Data; 
+using SequeMusic.Models; 
+using System.Linq; 
+using System.Threading.Tasks; 
 
 namespace SequeMusic.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pela gestão de notícias associadas a artistas.
+    /// Apenas administradores podem criar, editar ou eliminar notícias.
+    /// </summary>
     public class NoticiaController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,14 +22,21 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Noticia
+        /// <summary>
+        /// Lista todas as notícias com os respetivos artistas associados.
+        /// </summary>
+        /// <returns>View com a lista de notícias.</returns>
         public async Task<IActionResult> Index()
         {
             var noticias = await _context.Noticias.Include(n => n.Artista).ToListAsync();
             return View(noticias);
         }
 
-        // GET: Noticia/Details/5
+        /// <summary>
+        /// Mostra os detalhes de uma notícia específica.
+        /// </summary>
+        /// <param name="id">ID da notícia.</param>
+        /// <returns>View com os detalhes ou NotFound.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -39,15 +50,22 @@ namespace SequeMusic.Controllers
             return View(noticia);
         }
 
-        // GET: Noticia/Create
+        /// <summary>
+        /// Mostra o formulário para criar uma nova notícia (apenas Admin).
+        /// </summary>
+        /// <returns>View com o formulário de criação.</returns>
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
-            PreencherArtistasDropdown();
+            PreencherArtistasDropdown(); // Preenche dropdown de artistas
             return View();
         }
 
-        // POST: Noticia/Create
+        /// <summary>
+        /// Submete os dados da nova notícia (Admin).
+        /// </summary>
+        /// <param name="noticia">Objeto da notícia a ser criada.</param>
+        /// <returns>Redirect ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -65,7 +83,11 @@ namespace SequeMusic.Controllers
             return View(noticia);
         }
 
-        // GET: Noticia/Edit/5
+        /// <summary>
+        /// Mostra o formulário de edição de uma notícia existente (Admin).
+        /// </summary>
+        /// <param name="id">ID da notícia.</param>
+        /// <returns>View de edição ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -78,13 +100,19 @@ namespace SequeMusic.Controllers
             return View(noticia);
         }
 
-        // POST: Noticia/Edit/5
+        /// <summary>
+        /// Submete alterações a uma notícia existente (Admin).
+        /// </summary>
+        /// <param name="id">ID da notícia.</param>
+        /// <param name="noticia">Objeto da notícia atualizado.</param>
+        /// <returns>Redirect ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,Conteudo,Data_Publicacao,Fonte,Resumo,ImagemUrl,ArtistaId")] Noticia noticia)
         {
             if (id != noticia.Id) return NotFound();
+
             ModelState.Remove("Artista");
             if (ModelState.IsValid)
             {
@@ -107,7 +135,11 @@ namespace SequeMusic.Controllers
             return View(noticia);
         }
 
-        // GET: Noticia/Delete/5
+        /// <summary>
+        /// Mostra a confirmação de remoção de uma notícia (Admin).
+        /// </summary>
+        /// <param name="id">ID da notícia.</param>
+        /// <returns>View com os dados da notícia ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -122,7 +154,11 @@ namespace SequeMusic.Controllers
             return View(noticia);
         }
 
-        // POST: Noticia/Delete/5
+        /// <summary>
+        /// Elimina uma notícia da base de dados (Admin).
+        /// </summary>
+        /// <param name="id">ID da notícia.</param>
+        /// <returns>Redireciona para Index.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -134,12 +170,17 @@ namespace SequeMusic.Controllers
                 _context.Noticias.Remove(noticia);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
 
-        private void PreencherArtistasDropdown(int? artistaSelecionado = null)
+        /// <summary>
+        /// Preenche a dropdown com artistas para usar em formulários.
+        /// </summary>
+        /// <param name="idSelecionado">ID do artista pré-selecionado (opcional).</param>
+        private void PreencherArtistasDropdown(int? idSelecionado = null)
         {
-            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", artistaSelecionado);
+            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", idSelecionado);
         }
     }
 }

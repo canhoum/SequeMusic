@@ -62,12 +62,12 @@
                     </p>
 
                     <div class="d-flex justify-content-center gap-2 mt-3">
-                        <a asp-action="Details" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-info">👁 Detalhes</a>
+                        <a asp-action="Details" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-info">Detalhes</a>
 
                         @if (User.IsInRole("Admin"))
                         {
-                            <a asp-action="Edit" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-warning">✏️ Editar</a>
-                            <a asp-action="Delete" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</a>
+                            <a asp-action="Edit" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-warning">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@artista.Id" class="btn btn-sm btn-outline-danger">Eliminar</a>
                         }
                     </div>
                 </div>

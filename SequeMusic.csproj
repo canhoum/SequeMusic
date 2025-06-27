@@ -24,7 +24,6 @@
     <ItemGroup>
       <Folder Include="migrations\" />
       <Folder Include="wwwroot\icons\" />
-      <Folder Include="wwwroot\uploads\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,6 +31,12 @@
       <_ContentIncludedByDefault Remove="SequeMusic\obj\project.packagespec.json" />
       <_ContentIncludedByDefault Remove="SequeMusic\obj\SequeMusic.csproj.nuget.dgspec.json" />
     </ItemGroup>
+    
+<ItemGroup>
+  <None Update="auth\google-credentials.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
 
 
 

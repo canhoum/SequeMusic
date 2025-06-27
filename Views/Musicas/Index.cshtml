@@ -82,16 +82,16 @@ else if (User.Identity.IsAuthenticated && isPremium)
 
             <td>
                 <a asp-action="Details" asp-route-id="@item.ID" class="btn btn-sm btn-outline-info me-1">
-                    👁 Detalhes
+                    Detalhes
                 </a>
 
                 @if (User.IsInRole("Admin"))
                 {
                     <a asp-action="Edit" asp-route-id="@item.ID" class="btn btn-sm btn-outline-warning me-1">
-                        ✏️ Editar
+                        Editar
                     </a>
                     <a asp-action="Delete" asp-route-id="@item.ID" class="btn btn-sm btn-outline-danger">
-                        🗑️ Apagar
+                        Apagar
                     </a>
                 }
             </td>

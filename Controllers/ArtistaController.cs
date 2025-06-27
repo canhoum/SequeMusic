@@ -20,13 +20,20 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Artistas
+        /// <summary>
+        /// Lista todos os artistas existentes na base de dados.
+        /// </summary>
+        /// <returns>View com a lista de artistas.</returns>
         public async Task<IActionResult> Index()
         {
             return View(await _context.Artistas.ToListAsync());
         }
 
-        // GET: Artistas/Details/5
+        /// <summary>
+        /// Mostra os detalhes de um artista, incluindo músicas e notícias associadas.
+        /// </summary>
+        /// <param name="id">ID do artista.</param>
+        /// <returns>View com os detalhes ou NotFound se não existir.</returns>
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -41,14 +48,22 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Create
+        /// <summary>
+        /// Mostra o formulário de criação de um novo artista (Admin).
+        /// </summary>
+        /// <returns>View de criação.</returns>
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Artistas/Create
+        /// <summary>
+        /// Submete o novo artista preenchido no formulário (Admin).
+        /// </summary>
+        /// <param name="artista">Dados do artista.</param>
+        /// <param name="fotoUpload">Ficheiro da imagem enviada.</param>
+        /// <returns>Redirect para Index ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -73,7 +88,11 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Edit/5
+        /// <summary>
+        /// Mostra o formulário de edição de um artista (Admin).
+        /// </summary>
+        /// <param name="id">ID do artista.</param>
+        /// <returns>View com dados do artista ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -85,7 +104,13 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // POST: Artistas/Edit/5
+        /// <summary>
+        /// Submete as alterações feitas ao artista (Admin).
+        /// </summary>
+        /// <param name="id">ID do artista.</param>
+        /// <param name="artista">Dados atualizados do artista.</param>
+        /// <param name="fotoUpload">Nova imagem enviada (opcional).</param>
+        /// <returns>Redirect para Index ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -120,21 +145,27 @@ namespace SequeMusic.Controllers
             return View(artista);
         }
 
-        // GET: Artistas/Delete/5
+        /// <summary>
+        /// Mostra a confirmação de remoção de um artista (Admin).
+        /// </summary>
+        /// <param name="id">ID do artista a remover.</param>
+        /// <returns>View com dados do artista ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
 
-            var artista = await _context.Artistas
-                .FirstOrDefaultAsync(a => a.Id == id);
-
+            var artista = await _context.Artistas.FirstOrDefaultAsync(a => a.Id == id);
             if (artista == null) return NotFound();
 
             return View(artista);
         }
 
-        // POST: Artistas/Delete/5
+        /// <summary>
+        /// Elimina definitivamente um artista (Admin).
+        /// </summary>
+        /// <param name="id">ID do artista.</param>
+        /// <returns>Redirect para Index após apagar.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
@@ -146,7 +177,11 @@ namespace SequeMusic.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Método privado para guardar imagem
+        /// <summary>
+        /// Função auxiliar para validar e guardar imagem de artista em disco.
+        /// </summary>
+        /// <param name="ficheiro">Ficheiro recebido via form.</param>
+        /// <returns>Nome do ficheiro guardado ou null se inválido.</returns>
         private async Task<string> GuardarImagemAsync(IFormFile ficheiro)
         {
             if (ficheiro != null && ficheiro.Length > 0)

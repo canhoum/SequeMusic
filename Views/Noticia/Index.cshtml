@@ -23,7 +23,7 @@
     .noticias-header h2 {
         font-size: 36px;
         font-weight: bold;
-        color: white;
+        color: black;
     }
 
     .btn-criar {
@@ -31,7 +31,6 @@
         color: white;
         padding: 10px 16px;
         border-radius: 6px;
-        font-weight: bold;
         text-decoration: none;
     }
 
@@ -42,7 +41,7 @@
     }
 
     .noticia-card {
-        background-color: #1c1c1c;
+        background-color: white;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
@@ -67,6 +66,7 @@
         font-size: 20px;
         font-weight: bold;
         margin-bottom: 10px;
+        color: black;
     }
 
     .noticia-meta {
@@ -79,6 +79,7 @@
         flex-grow: 1;
         font-size: 15px;
         margin-bottom: 15px;
+        color: #aaa;
     }
 
     .noticia-botoes a {
@@ -89,10 +90,47 @@
         text-decoration: none;
         display: inline-block;
     }
+    .noticia-botoes a {
+        font-size: 14px;
+        padding: 6px 12px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+    }
 
-    .btn-detalhes { background-color: #0dcaf0; color: #000; }
-    .btn-editar   { background-color: #ffc107; color: #000; }
-    .btn-apagar   { background-color: #dc3545; color: #fff; }
+    .btn-detalhes {
+        color: #0d6efd;
+        border-color: #0d6efd;
+        background-color: transparent;
+    }
+    .btn-detalhes:hover {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+
+    .btn-editar {
+        color: #ffc107;
+        border-color: #ffc107;
+        background-color: transparent;
+    }
+    .btn-editar:hover {
+        background-color: #ffc107;
+        color: #000;
+    }
+
+    .btn-apagar {
+        color: #dc3545;
+        border-color: #dc3545;
+        background-color: transparent;
+    }
+    .btn-apagar:hover {
+        background-color: #dc3545;
+        color: #fff;
+    }
+
+
 </style>
 
 <div class="noticias-container">
@@ -108,7 +146,7 @@
         @foreach (var item in Model)
         {
             <div class="noticia-card">
-                <img src="@item.ImagemUrl" alt="Imagem da notícia" class="noticia-imagem" />
+                <img src="@item.ImagemUrl" alt="Imagem da notícia" class="noticia-imagem"/>
 
                 <div class="noticia-conteudo">
                     <div class="noticia-titulo">@item.Titulo</div>
@@ -119,7 +157,9 @@
                         @item.Resumo
                     </div>
                     <div class="noticia-botoes">
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn-detalhes">Detalhes</a>
+                        <a class="btn btn-sm btn-outline-info" asp-action="Details" asp-route-id="@item.Id">
+                            Detalhes
+                        </a>
                         @if (User.IsInRole("Admin"))
                         {
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn-editar">Editar</a>

@@ -4,65 +4,79 @@
     ViewData["Title"] = "Adicionar Novo Artista";
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<!-- Cartão centralizado para o formulário de criação de artista -->
+<div class="card shadow-sm p-4 rounded-3 border-0 bg-light-subtle" style="max-width: 700px; margin: auto;">
+    <h3 class="fw-bold mb-4 text-center">Adicionar Novo Artista</h3>
 
-@if (User.IsInRole("Admin"))
-{
-    <form asp-action="Create" enctype="multipart/form-data" class="shadow-sm p-4 rounded bg-light">
-        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+    @* Verifica se o utilizador tem permissões de administrador *@
+    @if (User.IsInRole("Admin"))
+    {
+        <!-- Formulário de submissão de novo artista -->
+        <form asp-action="Create" enctype="multipart/form-data">
+            <!-- Mensagens de validação geral -->
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-        <div class="mb-3">
-            <label asp-for="Nome_Artista" class="form-label fw-semibold"></label>
-            <input asp-for="Nome_Artista" class="form-control" />
-            <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Biografia" class="form-label fw-semibold"></label>
-            <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
-            <span asp-validation-for="Biografia" class="text-danger small"></span>
-        </div>
-
-        <div class="mb-3">
-            <label asp-for="Pais_Origem" class="form-label fw-semibold"></label>
-            <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
-            <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
-
-            <!-- Bandeira dinâmica -->
-            <div class="mt-2" id="bandeira-container" style="display: none;">
-                <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+            <!-- Campo: Nome do Artista -->
+            <div class="mb-3">
+                <label for="Nome_Artista" class="form-label fw-semibold">Nome do Artista</label>
+                <input asp-for="Nome_Artista" class="form-control" />
+                <span asp-validation-for="Nome_Artista" class="text-danger small"></span>
             </div>
+
+            <!-- Campo: Biografia -->
+            <div class="mb-3">
+                <label asp-for="Biografia" class="form-label fw-semibold"></label>
+                <textarea asp-for="Biografia" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Biografia" class="text-danger small"></span>
+            </div>
+
+            <!-- Campo: País de Origem com pré-visualização de bandeira -->
+            <div class="mb-3">
+                <label for="Pais_Origem" class="form-label fw-semibold">País de Origem</label>
+                <input asp-for="Pais_Origem" class="form-control" id="input-pais" />
+                <span asp-validation-for="Pais_Origem" class="text-danger small"></span>
+
+                <!-- Container para mostrar a bandeira do país dinamicamente -->
+                <div class="mt-2" id="bandeira-container" style="display: none;">
+                    <img id="bandeira-img" src="" alt="Bandeira" class="border rounded" width="40" height="30" />
+                </div>
+            </div>
+
+            <!-- Campo: Upload de Foto do Artista -->
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Foto do Artista</label>
+                <input name="fotoUpload" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif" required />
+                <span asp-validation-for="Foto" class="text-danger small"></span>
+            </div>
+
+            <!-- Botões de ação -->
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">← Cancelar</a>
+            </div>
+        </form>
+    }
+    else
+    {
+        <!-- Caso o utilizador não seja admin, mostra mensagem de acesso negado -->
+        <div class="alert alert-danger mt-3">
+            Acesso restrito. Apenas administradores podem adicionar artistas.
         </div>
-
-        <div class="mb-4">
-            <label class="form-label fw-semibold">Foto do Artista</label>
-            <input name="fotoUpload" class="form-control" type="file" accept=".jpg,.jpeg,.png,.gif" required />
-            <span asp-validation-for="Foto" class="text-danger small"></span>
-        </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success">💾 Guardar</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
-        </div>
-    </form>
-}
-else
-{
-    <div class="alert alert-danger">
-        Acesso restrito. Apenas administradores podem adicionar artistas.
-    </div>
-}
-
-
+    }
+</div>
 
 @section Scripts {
+    <!-- Scripts de validação padrão do ASP.NET -->
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 
+    <!-- Script: Mostra bandeira com base no país digitado -->
+    <!-- Fonte: Flag CDN (https://flagcdn.com/) -->
     <script>
         const inputPais = document.getElementById("input-pais");
         const bandeiraContainer = document.getElementById("bandeira-container");
         const bandeiraImg = document.getElementById("bandeira-img");
 
+        // Mapa de países suportados com código ISO de bandeiras
         const mapaPaises = {
             portugal: "pt",
             brasil: "br",
@@ -82,12 +96,14 @@ else
             mexico: "mx",
             suecia: "se",
             "estados unidos": "us",
-            "reino unido": "gb",
-            
+            "reino unido": "gb"
         };
 
+        // Quando o utilizador escreve no campo "País de Origem"
         inputPais.addEventListener("input", function () {
-            const nome = inputPais.value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const nome = inputPais.value.trim().toLowerCase()
+                .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Remove acentos
+
             const codigo = mapaPaises[nome];
             if (codigo) {
                 bandeiraImg.src = `https://flagcdn.com/w40/${codigo}.png`;

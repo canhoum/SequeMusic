@@ -1,8 +1,13 @@
-namespace SequeMusic.Models;
+// Modelo utilizado para representar erros no sistema (ex: em páginas de erro)
+// Permite mostrar o ID do pedido atual e verificar se ele existe
 
-public class ErrorViewModel
+namespace SequeMusic.Models
 {
-    public string? RequestId { get; set; }
+    public class ErrorViewModel
+    {
+        public string? RequestId { get; set; }
 
-    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId); 
+
+    }
 }

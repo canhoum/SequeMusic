@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace SequeMusic.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pela gestão de streamings de músicas.
+    /// Apenas administradores e utilizadores premium podem criar ou eliminar streamings.
+    /// </summary>
     [Authorize]
     public class StreamingController : Controller
     {
@@ -19,7 +22,11 @@ namespace SequeMusic.Controllers
             _context = context;
         }
 
-        // GET: Musicas/{musicaId}/Streamings
+        /// <summary>
+        /// Lista todos os streamings associados a uma música específica.
+        /// </summary>
+        /// <param name="musicaId">ID da música.</param>
+        /// <returns>View com a lista de streamings ou NotFound.</returns>
         [AllowAnonymous]
         public async Task<IActionResult> Index(int musicaId)
         {
@@ -34,8 +41,12 @@ namespace SequeMusic.Controllers
             return View(musica.Streamings.ToList());
         }
 
-        // GET: Musicas/{musicaId}/Streamings/Create
-        [Authorize]
+        /// <summary>
+        /// Mostra o formulário para criar um novo streaming.
+        /// Apenas utilizadores Premium ou Admin podem aceder.
+        /// </summary>
+        /// <param name="musicaId">ID da música a associar o streaming.</param>
+        /// <returns>View de criação ou Forbid/NotFound.</returns>
         public async Task<IActionResult> Create(int musicaId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
@@ -49,17 +60,22 @@ namespace SequeMusic.Controllers
             return View(new Streaming { MusicaId = musicaId });
         }
 
-        // POST: Musicas/{musicaId}/Streamings/Create
+        /// <summary>
+        /// Submete um novo streaming para a base de dados.
+        /// Apenas utilizadores Premium/Admin podem criar.
+        /// </summary>
+        /// <param name="streaming">Objeto do streaming preenchido no formulário.</param>
+        /// <returns>Redirect para detalhes da música ou View com erros.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize]
         public async Task<IActionResult> Create(Streaming streaming)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
             if (user == null || (!user.IsAdmin && !user.IsPremium))
                 return Forbid();
 
-            ModelState.Remove("Musica");
+            ModelState.Remove("Musica"); // Ignora validação da propriedade de navegação
+
             if (ModelState.IsValid)
             {
                 _context.Add(streaming);
@@ -71,7 +87,12 @@ namespace SequeMusic.Controllers
             return View(streaming);
         }
 
-        // GET: Streamings/Delete/5
+        /// <summary>
+        /// Mostra a página de confirmação para apagar um streaming.
+        /// Apenas administradores têm acesso.
+        /// </summary>
+        /// <param name="id">ID do streaming.</param>
+        /// <returns>View com os dados do streaming ou NotFound.</returns>
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -86,7 +107,11 @@ namespace SequeMusic.Controllers
             return View(streaming);
         }
 
-        // POST: Streamings/Delete/5
+        /// <summary>
+        /// Submete a eliminação definitiva de um streaming (Admin).
+        /// </summary>
+        /// <param name="id">ID do streaming a eliminar.</param>
+        /// <returns>Redirect para detalhes da música após eliminação.</returns>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]

@@ -9,48 +9,72 @@
         <hr class="w-50 mx-auto" />
     </div>
 
+
+    <!-- Curso e Alunos -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <h4 class="text-primary">Curso e Ano Letivo</h4>
+            <h4 class="text-dark">Curso e Ano Letivo</h4>
+
             <p class="mb-1">Licenciatura em Engenharia Informática</p>
             <p class="mb-1">Disciplina: Desenvolvimento Web (DWEB)</p>
             <p class="text-muted">Ano Letivo: 2024/2025</p>
         </div>
         <div class="col-md-6">
-            <h4 class="text-primary">Alunos</h4>
+            <h4 class="text-dark">Alunos</h4>
             <ul class="list-unstyled">
-                <li>24863 – João Silva</li>
-                <li>23878 – Guilherme Aires</li>
+                <li class="mb-3 d-flex align-items-center gap-3">
+                    <img src="~/fotogui.jpeg" alt="Guilherme Aires" width="60" height="60" class="rounded-circle shadow-sm border">
+                    <div>
+                        <div>23878 – Guilherme Aires</div>
+                        <a href="https://github.com/L3gend776" target="_blank" class="text-dark fs-5">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </li>
+                <li class="mb-3 d-flex align-items-center gap-3">
+                    <img src="~/fotoparatrabalho.jpg" alt="João Silva" width="60" height="60" class="rounded-circle shadow-sm border">
+                    <div>
+                        <div>24863 – João Silva</div>
+                        <a href="https://github.com/canhoum" target="_blank" class="text-dark fs-5">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                </li>
             </ul>
         </div>
-    </div>
 
-    <div class="mb-4">
-        <h4 class="text-primary">Bibliotecas e Frameworks</h4>
-        <ul class="list-group">
-            <li class="list-group-item">ASP.NET Core MVC – <a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank">Microsoft</a></li>
-            <li class="list-group-item">Entity Framework Core – <a href="https://learn.microsoft.com/ef/core" target="_blank">EF Core</a></li>
-            <li class="list-group-item">ASP.NET Identity – <a href="https://learn.microsoft.com/aspnet/core/security/authentication/identity" target="_blank">Identity</a></li>
-            <li class="list-group-item">Bootstrap 5 – <a href="https://getbootstrap.com/" target="_blank">getbootstrap.com</a></li>
-            <li class="list-group-item">Font Awesome – <a href="https://fontawesome.com/" target="_blank">fontawesome.com</a></li>
-            <li class="list-group-item">jQuery – <a href="https://jquery.com/" target="_blank">jquery.com</a></li>
-            <li class="list-group-item">Google OAuth – <a href="https://developers.google.com/identity" target="_blank">developers.google.com</a></li>
-            <li class="list-group-item">JWT Authentication – <a href="https://jwt.io/" target="_blank">jwt.io</a></li>
-            <li class="list-group-item">Swagger / Swashbuckle – <a href="https://swagger.io/tools/swagger-ui/" target="_blank">swagger.io</a></li>
-        </ul>
-    </div>
 
-    <div class="mb-4">
-        <h4 class="text-primary">Credenciais de Acesso</h4>
-        <div class="card bg-light">
-            <div class="card-body">
-                <p><strong>Administrador:</strong> <code>admin@sequemusic.com</code> / <code>Admin123!</code></p>
-                <p><strong>Utilizador Normal:</strong> <code>user@sequemusic.com</code> / <code>User123!</code></p>
+        <!-- Bibliotecas utilizadas -->
+        <div class="mb-4">
+            <h4 class="text-dark">Bibliotecas e Frameworks</h4>
+            <ul class="list-group">
+                <li class="list-group-item">ASP.NET Core MVC – <a href="https://dotnet.microsoft.com/apps/aspnet" target="_blank">Microsoft</a></li>
+                <li class="list-group-item">Entity Framework Core – <a href="https://learn.microsoft.com/ef/core" target="_blank">EF Core</a></li>
+                <li class="list-group-item">ASP.NET Identity – <a href="https://learn.microsoft.com/aspnet/core/security/authentication/identity" target="_blank">Identity</a></li>
+                <li class="list-group-item">Bootstrap 5 – <a href="https://getbootstrap.com/" target="_blank">getbootstrap.com</a></li>
+                <li class="list-group-item">Font Awesome – <a href="https://fontawesome.com/" target="_blank">fontawesome.com</a></li>
+                <li class="list-group-item">jQuery – <a href="https://jquery.com/" target="_blank">jquery.com</a></li>
+                <li class="list-group-item">Google OAuth – <a href="https://developers.google.com/identity" target="_blank">developers.google.com</a></li>
+                <li class="list-group-item">JWT Authentication – <a href="https://jwt.io/" target="_blank">jwt.io</a></li>
+                <li class="list-group-item">Swagger / Swashbuckle – <a href="https://swagger.io/tools/swagger-ui/" target="_blank">swagger.io</a></li>
+            </ul>
+        </div>
+
+        <!-- Credenciais de acesso -->
+        <div class="mb-4">
+            <h4 class="text-dark">Credenciais de Acesso</h4>
+            <div class="card bg-light">
+                <div class="card-body">
+                    <p><strong>Administrador:</strong> <code>admin@sequemusic.com</code> / <code>Admin123!</code></p>
+                    <p><strong>Utilizador Normal:</strong> <code>user@sequemusic.com</code> / <code>User123!</code></p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="text-center mt-5">
-        <a asp-controller="Home" asp-action="Index" class="btn btn-success px-4">← Voltar à página inicial</a>
+        <!-- Botão voltar -->
+        <div class="text-center mt-5">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-success px-4">← Voltar à página inicial</a>
+        </div>
+
     </div>
 </div>
