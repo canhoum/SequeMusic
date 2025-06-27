@@ -167,15 +167,14 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Ativa o Swagger apenas em ambiente de desenvolvimento
-if (app.Environment.IsDevelopment())
-{
+
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "SequeMusic API v1");
         options.RoutePrefix = "swagger";
     });
-}
+
 
 // Executa o seed inicial (criação do utilizador admin)
 using (var scope = app.Services.CreateScope())

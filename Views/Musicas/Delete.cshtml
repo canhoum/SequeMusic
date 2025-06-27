@@ -1,33 +1,45 @@
 @model SequeMusic.Models.Musica
 
 @{
-    ViewData["Title"] = "Apagar Música";
+    ViewData["Title"] = "Eliminar Música";
 }
 
-@if (User.IsInRole("Admin"))
-{
-    <h2>Tem a certeza que pretende apagar esta música?</h2>
-
-    <dl class="row">
-        <dt class="col-sm-2">Título</dt>
-        <dd class="col-sm-10">@Model.Titulo</dd>
-
-        <dt class="col-sm-2">Artista</dt>
-        <dd class="col-sm-10">@Model.Artista?.Nome_Artista</dd>
-    </dl>
-
-    <form asp-action="DeleteConfirmed">
-        <input type="hidden" asp-for="ID" />
-        <input type="submit" value="Apagar" class="btn btn-danger" /> |
-        <a asp-action="Index">Cancelar</a>
-    </form>
-}
-else
-{
-    <div class="alert alert-warning mt-4">
-        <i class="fas fa-lock"></i> Apenas administradores podem apagar músicas.
-        <div class="mt-3">
-            <a asp-action="Index" class="btn btn-outline-primary">← Voltar à lista</a>
+<div class="container py-4">
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="alert alert-danger border border-danger shadow-sm">
+            <h4 class="alert-heading">⚠️ Atenção!</h4>
+            <p class="mb-2">Está prestes a eliminar a música <strong>@Model.Titulo</strong>.</p>
+            <p>Esta ação é <strong>irreversível</strong> e irá remover também os streamings e avaliações associados.</p>
         </div>
-    </div>
-}
+
+        <div class="mb-4">
+            <h5 class="fw-semibold">Informações</h5>
+            <dl class="row">
+                <dt class="col-sm-2">Título</dt>
+                <dd class="col-sm-10">@Model.Titulo</dd>
+
+                <dt class="col-sm-2">Artista</dt>
+                <dd class="col-sm-10">@Model.Artista?.Nome_Artista</dd>
+            </dl>
+        </div>
+
+        <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-3">
+            <input type="hidden" asp-for="ID" />
+            <button type="submit" class="btn btn-danger">
+                🗑️ Eliminar Música
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Cancelar
+            </a>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning mt-4">
+            <h5 class="mb-2"><i class="fas fa-lock"></i> Acesso restrito</h5>
+            <p>Apenas administradores têm permissão para eliminar músicas.</p>
+            <a asp-action="Index" class="btn btn-outline-primary mt-2">← Voltar à lista</a>
+        </div>
+    }
+</div>
