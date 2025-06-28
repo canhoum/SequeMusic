@@ -86,6 +86,62 @@ namespace SequeMusic.Controllers
             ViewBag.Musica = await _context.Musicas.FindAsync(streaming.MusicaId);
             return View(streaming);
         }
+        
+        /// <summary>
+        /// Mostra o formulário para editar um streaming (Admin apenas).
+        /// </summary>
+        /// <param name="id">ID do streaming.</param>
+        /// <returns>View com o streaming ou NotFound.</returns>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var streaming = await _context.Streamings
+                .Include(s => s.Musica)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (streaming == null) return NotFound();
+
+            ViewBag.Musica = streaming.Musica;
+            return View(streaming);
+        }
+
+        /// <summary>
+        /// Submete a edição de um streaming (Admin).
+        /// </summary>
+        /// <param name="id">ID do streaming.</param>
+        /// <param name="streaming">Objeto atualizado.</param>
+        /// <returns>Redirect para detalhes da música ou View com erros.</returns>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, Streaming streaming)
+        {
+            if (id != streaming.Id) return NotFound();
+
+            ModelState.Remove("Musica");
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(streaming);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction("Details", "Musicas", new { id = streaming.MusicaId });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await _context.Streamings.AnyAsync(e => e.Id == id))
+                        return NotFound();
+                    throw;
+                }
+            }
+
+            ViewBag.Musica = await _context.Musicas.FindAsync(streaming.MusicaId);
+            return View(streaming);
+        }
+
 
         /// <summary>
         /// Mostra a página de confirmação para apagar um streaming.

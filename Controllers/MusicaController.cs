@@ -45,7 +45,8 @@ namespace SequeMusic.Controllers
             if (!User.IsInRole("Admin"))
             {
                 var top10 = await query
-                    .OrderByDescending(m => m.Streamings.Sum(s => s.NumeroDeStreams))
+                    .Where(m => m.PosicaoBillboard.HasValue)
+                    .OrderBy(m => m.PosicaoBillboard)
                     .Take(10)
                     .ToListAsync();
                 return View(top10);

@@ -178,6 +178,8 @@ else
 @functions {
     public string FormatarStreams(int numero)
     {
+        if (numero >= 1_000_000_000)
+            return (numero / 1_000_000_000D).ToString("0.#") + "B";
         if (numero >= 1_000_000)
             return (numero / 1_000_000D).ToString("0.#") + "M";
         if (numero >= 1_000)

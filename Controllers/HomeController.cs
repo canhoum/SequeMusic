@@ -70,7 +70,7 @@ namespace SequeMusic.Controllers
             // Pesquisa por músicas com títulos que contenham o termo
             var musicas = await _context.Musicas
                 .Include(m => m.Artista)
-                .Where(m => m.Titulo.Contains(query))
+                .Where(m => m.Titulo.Contains(query) || m.Artista.Nome_Artista.Contains(query))
                 .ToListAsync();
 
             var viewModel = new PesquisaViewModel

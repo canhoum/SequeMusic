@@ -30,6 +30,11 @@
             </div>
 
             <div class="mb-3">
+                <label asp-for="Letra" class="form-label fw-semibold">Letra</label>
+                <textarea asp-for="Letra" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="mb-3">
                 <label asp-for="ArtistaId" class="form-label fw-semibold">Artista</label>
                 <select asp-for="ArtistaId" class="form-select" asp-items="ViewBag.ArtistaId"></select>
                 <span asp-validation-for="ArtistaId" class="text-danger small"></span>
