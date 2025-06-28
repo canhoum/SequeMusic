@@ -45,7 +45,8 @@ namespace SequeMusic.Controllers
             if (!User.IsInRole("Admin"))
             {
                 var top10 = await query
-                    .OrderByDescending(m => m.Streamings.Sum(s => s.NumeroDeStreams))
+                    .Where(m => m.PosicaoBillboard.HasValue)
+                    .OrderBy(m => m.PosicaoBillboard)
                     .Take(10)
                     .ToListAsync();
                 return View(top10);
@@ -81,6 +82,7 @@ namespace SequeMusic.Controllers
                 .Include(m => m.Genero)
                 .Include(m => m.Avaliacoes).ThenInclude(a => a.Utilizador)
                 .Include(m => m.Streamings)
+                .Include(m => m.ArtistasMusicas).ThenInclude(am => am.Artista)
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (musica == null) return NotFound();
@@ -99,10 +101,19 @@ namespace SequeMusic.Controllers
             if (!user.IsAdmin && !user.IsPremium)
                 return Forbid();
 
+            // Para dropdown do artista principal
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista");
+
+            // Para múltiplas colaborações (select2)
+            ViewBag.TodosArtistas = await _context.Artistas.ToListAsync();
+
+            // Géneros disponíveis
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome");
+
             return View();
         }
+
+
 
         /// <summary>
         /// Submete uma nova música e guarda o ficheiro .mp3.
@@ -113,7 +124,7 @@ namespace SequeMusic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio)
+        public async Task<IActionResult> Create(Musica musica, IFormFile ficheiroAudio, int[] artistasSelecionados)
         {
             ModelState.Remove("Genero");
             ModelState.Remove("Artista");
@@ -122,51 +133,79 @@ namespace SequeMusic.Controllers
             if (!user.IsPremium && !user.IsAdmin)
                 return Forbid();
 
-            // Cria artista se não existir com o nome do utilizador Premium
-            var artista = await _context.Artistas.FirstOrDefaultAsync(a => a.Nome_Artista == user.Nome);
-            if (artista == null)
+            // Cria o artista principal se ainda não existir
+            var artistaPrincipal = await _context.Artistas.FirstOrDefaultAsync(a => a.Nome_Artista == user.Nome);
+            if (artistaPrincipal == null)
             {
-                artista = new Artista
+                artistaPrincipal = new Artista
                 {
                     Nome_Artista = user.Nome,
                     Biografia = "Artista registado por conta premium.",
                     Pais_Origem = "Desconhecido"
                 };
-                _context.Artistas.Add(artista);
+                _context.Artistas.Add(artistaPrincipal);
                 await _context.SaveChangesAsync();
             }
 
-            musica.ArtistaId = artista.Id;
+            musica.ArtistaId = artistaPrincipal.Id;
 
             if (ModelState.IsValid)
             {
+                // Lida com o ficheiro de áudio
                 if (ficheiroAudio != null && ficheiroAudio.Length > 0)
                 {
                     var extensao = Path.GetExtension(ficheiroAudio.FileName).ToLower();
                     if (extensao != ".mp3")
                     {
-                        ModelState.AddModelError(string.Empty, "Apenas ficheiros .mp3 são permitidos.");
+                        ModelState.AddModelError("", "Apenas ficheiros .mp3 são permitidos.");
+                        ViewBag.TodosArtistas = new MultiSelectList(await _context.Artistas.ToListAsync(), "Id", "Nome_Artista", artistasSelecionados);
+                        ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
                         return View("PromoverCreate", musica);
                     }
 
                     var nomeUnico = Guid.NewGuid() + extensao;
                     var caminho = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", nomeUnico);
 
-                    using (var stream = new FileStream(caminho, FileMode.Create))
-                        await ficheiroAudio.CopyToAsync(stream);
+                    using var stream = new FileStream(caminho, FileMode.Create);
+                    await ficheiroAudio.CopyToAsync(stream);
 
                     musica.NomeFicheiroAudio = nomeUnico;
                 }
 
-                _context.Add(musica);
+                _context.Musicas.Add(musica);
                 await _context.SaveChangesAsync();
-                TempData["Mensagem"] = "🎉 Música promovida com sucesso!";
+
+                // Relação N:N (Artistas secundários)
+                foreach (var artistaId in artistasSelecionados.Distinct())
+                {
+                    _context.ArtistasMusicas.Add(new ArtistaMusica
+                    {
+                        ArtistaId = artistaId,
+                        MusicaId = musica.ID
+                    });
+                }
+
+                // Adiciona também o artista principal à relação N:N (se desejado)
+                if (!artistasSelecionados.Contains(artistaPrincipal.Id))
+                {
+                    _context.ArtistasMusicas.Add(new ArtistaMusica
+                    {
+                        ArtistaId = artistaPrincipal.Id,
+                        MusicaId = musica.ID
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Mensagem"] = "🎉 Música criada com artista principal e colaborações!";
                 return RedirectToAction("Index");
             }
 
+            ViewBag.TodosArtistas = new MultiSelectList(await _context.Artistas.ToListAsync(), "Id", "Nome_Artista", artistasSelecionados);
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
             return View("PromoverCreate", musica);
         }
+
+
 
         /// <summary>
         /// Mostra o formulário para editar uma música (apenas Admin).
@@ -178,13 +217,20 @@ namespace SequeMusic.Controllers
         {
             if (id == null) return NotFound();
 
-            var musica = await _context.Musicas.FindAsync(id);
+            var musica = await _context.Musicas
+                .Include(m => m.ArtistasMusicas)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
             if (musica == null) return NotFound();
 
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+            ViewBag.TodosArtistas = await _context.Artistas.ToListAsync();
+            ViewBag.ArtistasSelecionadosIds = musica.ArtistasMusicas.Select(am => am.ArtistaId).ToList();
+
             return View(musica);
         }
+
 
         /// <summary>
         /// Submete alterações a uma música (pode incluir novo .mp3).
@@ -196,7 +242,7 @@ namespace SequeMusic.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, Musica musica, IFormFile ficheiroAudio)
+        public async Task<IActionResult> Edit(int id, Musica musica, IFormFile ficheiroAudio, int[] artistasSelecionados)
         {
             if (id != musica.ID) return NotFound();
 
@@ -204,40 +250,78 @@ namespace SequeMusic.Controllers
             {
                 try
                 {
+                    // Substituir ficheiro mp3, se fornecido
                     if (ficheiroAudio != null && ficheiroAudio.Length > 0)
                     {
                         var extensao = Path.GetExtension(ficheiroAudio.FileName).ToLower();
                         if (extensao != ".mp3")
                         {
                             ModelState.AddModelError("NomeFicheiroAudio", "Apenas ficheiros .mp3 são permitidos.");
+                            ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
+                            ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+                            ViewBag.TodosArtistas = await _context.Artistas.ToListAsync();
+                            ViewBag.ArtistasSelecionadosIds = artistasSelecionados.ToList();
                             return View(musica);
                         }
 
                         var nomeUnico = Guid.NewGuid() + extensao;
                         var caminho = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads", nomeUnico);
 
-                        using (var stream = new FileStream(caminho, FileMode.Create))
-                            await ficheiroAudio.CopyToAsync(stream);
+                        using var stream = new FileStream(caminho, FileMode.Create);
+                        await ficheiroAudio.CopyToAsync(stream);
 
                         musica.NomeFicheiroAudio = nomeUnico;
                     }
 
+                    // Atualizar música
                     _context.Update(musica);
+                    await _context.SaveChangesAsync();
+
+                    // Atualizar colaborações N:N
+                    var antigos = _context.ArtistasMusicas.Where(am => am.MusicaId == musica.ID);
+                    _context.ArtistasMusicas.RemoveRange(antigos);
+                    await _context.SaveChangesAsync();
+
+                    // Adicionar os novos artistas selecionados
+                    foreach (var artistaId in artistasSelecionados.Distinct())
+                    {
+                        _context.ArtistasMusicas.Add(new ArtistaMusica
+                        {
+                            ArtistaId = artistaId,
+                            MusicaId = musica.ID
+                        });
+                    }
+
+                    // Garante que o artista principal também está na lista de colaborações
+                    if (!artistasSelecionados.Contains(musica.ArtistaId))
+                    {
+                        _context.ArtistasMusicas.Add(new ArtistaMusica
+                        {
+                            ArtistaId = musica.ArtistaId,
+                            MusicaId = musica.ID
+                        });
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Musicas.Any(e => e.ID == id)) return NotFound();
+                    if (!_context.Musicas.Any(e => e.ID == musica.ID)) return NotFound();
                     throw;
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
+            // Em caso de erro, recarrega dropdowns e colaborações
             ViewData["ArtistaId"] = new SelectList(_context.Artistas, "Id", "Nome_Artista", musica.ArtistaId);
             ViewData["GeneroId"] = new SelectList(_context.Generos, "Id", "Nome", musica.GeneroId);
+            ViewBag.TodosArtistas = await _context.Artistas.ToListAsync();
+            ViewBag.ArtistasSelecionadosIds = artistasSelecionados.ToList();
+
             return View(musica);
         }
+
 
         /// <summary>
         /// Mostra confirmação antes de apagar uma música (Admin).

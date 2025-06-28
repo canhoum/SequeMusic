@@ -55,7 +55,7 @@ else if (User.Identity.IsAuthenticated && isPremium)
                 <th>Posição</th>
             }
 
-            <th>Ações</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -75,7 +75,7 @@ else if (User.Identity.IsAuthenticated && isPremium)
                         <input type="hidden" name="id" value="@item.ID" />
                         <input type="number" name="posicao" class="form-control form-control-sm"
                                style="width: 60px;" value="@item.PosicaoBillboard" />
-                        <button type="submit" class="btn btn-sm btn-outline-primary">Salvar</button>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Guardar</button>
                     </form>
                 </td>
             }

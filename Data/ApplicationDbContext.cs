@@ -53,6 +53,12 @@ namespace SequeMusic.Data
         /// Representa a tabela de utilizadores da aplicação.
         /// </summary>
         public DbSet<Utilizador> Utilizadors { get; set; }
+        
+        /// <summary>
+        /// Representa a tabela de Artistas e Musicas.
+        /// </summary>
+        public DbSet<ArtistaMusica> ArtistasMusicas { get; set; }
+
 
         /// <summary>
         /// Configura as relações entre entidades e comportamentos de eliminação em cascata.
@@ -104,6 +110,22 @@ namespace SequeMusic.Data
                 .WithMany(a => a.Noticias)
                 .HasForeignKey(n => n.ArtistaId)
                 .OnDelete(DeleteBehavior.Cascade); // Ao eliminar um artista, elimina as suas notícias
+            
+            // Relação N:N entre Música e Artista
+            modelBuilder.Entity<ArtistaMusica>()
+                .HasKey(am => new { am.ArtistaId, am.MusicaId });
+
+            modelBuilder.Entity<ArtistaMusica>()
+                .HasOne(am => am.Musica)
+                .WithMany(m => m.ArtistasMusicas)
+                .HasForeignKey(am => am.MusicaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ArtistaMusica>()
+                .HasOne(am => am.Musica)
+                .WithMany(m => m.ArtistasMusicas)
+                .HasForeignKey(am => am.MusicaId);
+
         }
     }
 }

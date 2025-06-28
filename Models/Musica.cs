@@ -89,4 +89,12 @@ public class Musica
     /// </summary>
     [ValidateNever]
     public virtual ICollection<Streaming> Streamings { get; set; } = new List<Streaming>();
+    
+    /// <summary>
+    /// Relação muitos-para-muitos entre Músicas e Artistas.
+    /// Uma música pode ter vários artistas, e um artista pode participar em várias músicas.
+    /// </summary>
+    [ValidateNever]
+    public virtual ICollection<ArtistaMusica> ArtistasMusicas { get; set; } = new List<ArtistaMusica>();
+
 }
