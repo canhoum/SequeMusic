@@ -47,5 +47,12 @@ namespace SequeMusic.Models
         /// </summary>
         [ValidateNever]
         public virtual ICollection<Noticia> Noticias { get; set; } = [];
+        
+        /// <summary>
+        /// Vários  artistas poderem estar associados a músicas(relação 1:N).
+        /// </summary>
+        [ValidateNever]
+        public virtual ICollection<ArtistaMusica> ArtistasMusicas { get; set; } = new List<ArtistaMusica>();
+
     }
 }

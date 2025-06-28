@@ -184,6 +184,21 @@ namespace SequeMusic.Migrations
                     b.ToTable("Artistas");
                 });
 
+            modelBuilder.Entity("SequeMusic.Models.ArtistaMusica", b =>
+                {
+                    b.Property<int>("ArtistaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MusicaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ArtistaId", "MusicaId");
+
+                    b.HasIndex("MusicaId");
+
+                    b.ToTable("ArtistasMusicas");
+                });
+
             modelBuilder.Entity("SequeMusic.Models.Avaliacao", b =>
                 {
                     b.Property<int>("Id")
@@ -491,6 +506,25 @@ namespace SequeMusic.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SequeMusic.Models.ArtistaMusica", b =>
+                {
+                    b.HasOne("SequeMusic.Models.Artista", "Artista")
+                        .WithMany("ArtistasMusicas")
+                        .HasForeignKey("ArtistaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SequeMusic.Models.Musica", "Musica")
+                        .WithMany("ArtistasMusicas")
+                        .HasForeignKey("MusicaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Artista");
+
+                    b.Navigation("Musica");
+                });
+
             modelBuilder.Entity("SequeMusic.Models.Avaliacao", b =>
                 {
                     b.HasOne("SequeMusic.Models.Musica", "Musica")
@@ -553,6 +587,8 @@ namespace SequeMusic.Migrations
 
             modelBuilder.Entity("SequeMusic.Models.Artista", b =>
                 {
+                    b.Navigation("ArtistasMusicas");
+
                     b.Navigation("Musicas");
 
                     b.Navigation("Noticias");
@@ -565,6 +601,8 @@ namespace SequeMusic.Migrations
 
             modelBuilder.Entity("SequeMusic.Models.Musica", b =>
                 {
+                    b.Navigation("ArtistasMusicas");
+
                     b.Navigation("Avaliacoes");
 
                     b.Navigation("Streamings");

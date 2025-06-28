@@ -41,7 +41,10 @@ namespace SequeMusic.Controllers
             var artista = await _context.Artistas
                 .Include(a => a.Musicas)
                 .Include(a => a.Noticias)
+                .Include(a => a.ArtistasMusicas)
+                .ThenInclude(am => am.Musica) 
                 .FirstOrDefaultAsync(a => a.Id == id);
+
 
             if (artista == null) return NotFound();
 

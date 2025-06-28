@@ -49,13 +49,13 @@
 
     <div class="row justify-content-center mt-5 text-start">
         <div class="col-md-5 mb-5">
-            <h4>📖 Sobre "@Model.Nome_Artista"</h4>
+            <h4>Sobre "@Model.Nome_Artista"</h4>
             <div id="biografia-container" class="biografia-limitada">@Model.Biografia</div>
             <button id="toggle-biografia" class="btn btn-sm btn-link mt-1 p-0">Mostrar mais</button>
         </div>
 
         <div class="col-md-5 mb-5">
-            <h4>🎵 Músicas Populares</h4>
+            <h4>Músicas Populares</h4>
             @if (Model.Musicas?.Any() == true)
             {
                 <ul class="list-group list-group-flush">
@@ -75,10 +75,36 @@
             }
         </div>
     </div>
+    
+    <div class="col-md-5 mb-5">
+        <h4>Colaborações em Músicas</h4>
+        @if (Model.ArtistasMusicas?.Any(am => am.Musica.ArtistaId != Model.Id) == true)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var colaboracao in Model.ArtistasMusicas
+                                  .Where(am => am.Musica.ArtistaId != Model.Id)
+                                  .Select(am => am.Musica)
+                                  .Distinct()
+                                  .Take(5))
+                {
+                    <li class="list-group-item px-0 border-0">
+                        <a asp-controller="Musicas" asp-action="Details" asp-route-id="@colaboracao.ID" class="text-decoration-none">
+                            ▶️ @colaboracao.Titulo
+                        </a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted">Sem colaborações registadas.</p>
+        }
+    </div>
+
 
     <div class="row justify-content-center mb-5 text-start">
         <div class="col-md-10">
-            <h4>📰 Notícias</h4>
+            <h4>Notícias</h4>
             @if (Model.Noticias?.Any() == true)
             {
                 <div class="row row-cols-1 row-cols-md-2 g-3">
@@ -123,7 +149,7 @@
         const pais = "@Model.Pais_Origem".trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
         const mapa = {
             portugal: "pt", brasil: "br", franca: "fr", espanha: "es", alemanha: "de",
-            italia: "it", canadá: "ca", chile: "cl", india: "in", argentina: "ar", "cabo verde": "cv", "estados unidos": "us"
+            italia: "it", canadá: "ca", chile: "cl", india: "in", argentina: "ar", "cabo verde": "cv", "estados unidos": "us", "reino unido":"gb"
 
         };
         const bandeira = document.getElementById("bandeira-pais");

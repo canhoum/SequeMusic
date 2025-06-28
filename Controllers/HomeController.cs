@@ -67,11 +67,31 @@ namespace SequeMusic.Controllers
                 .Where(a => a.Nome_Artista.Contains(query))
                 .ToListAsync();
 
-            // Pesquisa por músicas com títulos que contenham o termo
-            var musicas = await _context.Musicas
+            // Pesquisa por músicas com base no título ou nome do artista principal
+            var musicasDiretas = await _context.Musicas
                 .Include(m => m.Artista)
-                .Where(m => m.Titulo.Contains(query) || m.Artista.Nome_Artista.Contains(query))
+                .Include(m => m.Genero)
+                .Include(m => m.ArtistasMusicas)
+                .ThenInclude(am => am.Artista)
+                .Where(m =>
+                    m.Titulo.Contains(query) ||
+                    m.Artista.Nome_Artista.Contains(query))
                 .ToListAsync();
+
+            // Pesquisa por músicas onde o artista está como colaboração (mas não é o principal)
+            var musicasFeatures = await _context.ArtistasMusicas
+                .Include(am => am.Musica)
+                .ThenInclude(m => m.Artista)
+                .Where(am => am.Artista.Nome_Artista.Contains(query) && am.Musica.ArtistaId != am.ArtistaId)
+                .Select(am => am.Musica)
+                .Distinct()
+                .ToListAsync();
+
+            // Junta e remove duplicados
+            var musicas = musicasDiretas
+                .Concat(musicasFeatures)
+                .Distinct()
+                .ToList();
 
             var viewModel = new PesquisaViewModel
             {
