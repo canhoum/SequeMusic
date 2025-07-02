@@ -352,11 +352,30 @@ namespace SequeMusic.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var musica = await _context.Musicas.FindAsync(id);
+            var musica = await _context.Musicas
+                .Include(m => m.ArtistasMusicas)
+                .Include(m => m.Streamings)
+                .Include(m => m.Avaliacoes)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (musica == null) return NotFound();
+
+            // Remove colaborações
+            _context.ArtistasMusicas.RemoveRange(musica.ArtistasMusicas);
+
+            // Remove streamings
+            _context.Streamings.RemoveRange(musica.Streamings);
+
+            // Remove avaliações
+            _context.Avaliacoes.RemoveRange(musica.Avaliacoes);
+
+            // Remove a música
             _context.Musicas.Remove(musica);
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+
 
         /// <summary>
         /// Atualiza a posição Billboard de uma música (Admin).
